@@ -23,4 +23,16 @@ public class InputManager : MonoBehaviour
             ui.ResetGirdElementUI();
         }
     }
+
+    void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            GetComponent<ObstacleManager>().GenerateObstacles();
+        }
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            GetComponent<ObstacleManager>().DeleteObstacles();
+        }
+    }
 }

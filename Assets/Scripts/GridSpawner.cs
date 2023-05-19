@@ -16,23 +16,11 @@ public class GridSpawner : MonoBehaviour
 
     public List<GameObject> gridElements; // List of all the grid elements
 
-    bool gridActive = false; // Has the grid been generated
+    private bool gridActive = false; // Has the grid been generated
 
     void Start()
     {
         GenerateGrid();
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            GenerateGrid();
-        }
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            DeleteGrid();
-        }
     }
 
     // Generates the Grid
@@ -63,8 +51,16 @@ public class GridSpawner : MonoBehaviour
         {
             foreach (GameObject gridElement in gridElements)
             {
-                Destroy(gridElement);
+                if (Application.isEditor)
+                {
+                    DestroyImmediate(gridElement);
+                }
+                else
+                {
+                    Destroy(gridElement);
+                }
             }
+            gridElements.Clear();
             gridActive = false;
         }
     }
