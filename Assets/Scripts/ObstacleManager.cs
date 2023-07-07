@@ -47,7 +47,7 @@ public class ObstacleManager : MonoBehaviour
                         float zPos = grid.gridOrigin.position.z + i * 1.0f;
                         float yPos = grid.gridOrigin.position.y + 1.0f;
                         GameObject sphere = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
-                        // Set Grid Element as blocked
+                        grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
                         obstacles.Add(sphere);
                     }
                 }

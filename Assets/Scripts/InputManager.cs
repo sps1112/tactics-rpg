@@ -6,9 +6,14 @@ public class InputManager : MonoBehaviour
 {
     private UIManager ui; // UI Manager reference
 
+    public GameObject player;
+
+    private Pathfinding playerPath;
+
     void Start()
     {
         ui = GetComponent<UIManager>();
+        playerPath = player.GetComponent<Pathfinding>();
     }
 
     void FixedUpdate()
@@ -33,6 +38,18 @@ public class InputManager : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Escape))
         {
             GetComponent<ObstacleManager>().DeleteObstacles();
+        }
+        if (!playerPath.moving)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+                {
+                    Path path = playerPath.GetPath(hit.collider.gameObject.GetComponent<GridElement>());
+                    playerPath.MoveViaPath(path);
+                }
+            }
         }
     }
 }

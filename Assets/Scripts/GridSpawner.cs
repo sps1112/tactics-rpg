@@ -18,7 +18,7 @@ public class GridSpawner : MonoBehaviour
 
     private bool gridActive = false; // Has the grid been generated
 
-    void Start()
+    void Awake()
     {
         GenerateGrid();
     }
@@ -28,6 +28,11 @@ public class GridSpawner : MonoBehaviour
     {
         if (!gridActive)
         {
+            if (gridElements.Count > 0)
+            {
+                gridActive = true;
+                return;
+            }
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < columns; j++)
@@ -40,14 +45,48 @@ public class GridSpawner : MonoBehaviour
                     gridElements.Add(cube);
                 }
             }
+            SetupNeighbours();
             gridActive = true;
+        }
+    }
+
+    void SetupNeighbours()
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < columns; j++)
+            {
+                int xPos = (int)(gridOrigin.position.x + j * 1.0f);
+                int zPos = (int)(gridOrigin.position.z + i * 1.0f);
+                GridElement element = GetElement(xPos, zPos);
+                for (int x = -1; x <= 1; x++)
+                {
+                    for (int z = -1; z <= 1; z++)
+                    {
+                        if (x != 0 || z != 0)
+                        {
+                            int X = Mathf.Clamp(xPos + x, 0, columns - 1);
+                            int Z = Mathf.Clamp(zPos + z, 0, rows - 1);
+                            GridElement neighbour = GetElement(X, Z);
+                            if (!element.neighbours.Contains(neighbour) && neighbour != element)
+                            {
+                                // if (x == 0 || z == 0)
+                                // {
+                                element.neighbours.Add(GetElement(X, Z));
+                                // }
+                            }
+                        }
+                    }
+
+                }
+            }
         }
     }
 
     // Deletes the Grid
     public void DeleteGrid()
     {
-        if (gridActive)
+        if (gridActive || gridElements.Count > 0)
         {
             foreach (GameObject gridElement in gridElements)
             {
@@ -63,5 +102,11 @@ public class GridSpawner : MonoBehaviour
             gridElements.Clear();
             gridActive = false;
         }
+    }
+
+    // Returns the Grid Element based on Position
+    public GridElement GetElement(int x, int z)
+    {
+        return gridElements[x + z * columns].GetComponent<GridElement>();
     }
 }
