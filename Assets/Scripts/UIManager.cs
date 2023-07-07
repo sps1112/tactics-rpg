@@ -11,6 +11,8 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI posText; // Position UI Reference
 
+    public TextMeshProUGUI turnText;
+
     void Start()
     {
         ResetGirdElementUI();
@@ -22,6 +24,11 @@ public class UIManager : MonoBehaviour
         rowText.text = "Row: " + element.row.ToString();
         columnText.text = "Column: " + element.column.ToString();
         posText.text = "Pos: (" + element.pos.x.ToString() + ", " + element.pos.y.ToString() + ")";
+    }
+
+    public void SetTurnUI(TurnType type)
+    {
+        turnText.text = (type == TurnType.PLAYER) ? ("Player Turn") : ("Enemy Turn");
     }
 
     // Resets the Grid UI

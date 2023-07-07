@@ -14,6 +14,8 @@ public class GridSpawner : MonoBehaviour
     [SerializeField]
     private int columns = 10; // Grid Column Count
 
+    public bool diagonalMotion = true;
+
     public List<GameObject> gridElements; // List of all the grid elements
 
     private bool gridActive = false; // Has the grid been generated
@@ -68,12 +70,19 @@ public class GridSpawner : MonoBehaviour
                             int X = Mathf.Clamp(xPos + x, 0, columns - 1);
                             int Z = Mathf.Clamp(zPos + z, 0, rows - 1);
                             GridElement neighbour = GetElement(X, Z);
-                            if (!element.neighbours.Contains(neighbour) && neighbour != element)
+                            if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable())
                             {
-                                // if (x == 0 || z == 0)
-                                // {
-                                element.neighbours.Add(GetElement(X, Z));
-                                // }
+                                if (!diagonalMotion)
+                                {
+                                    if (x == 0 || z == 0)
+                                    {
+                                        element.neighbours.Add(neighbour);
+                                    }
+                                }
+                                else
+                                {
+                                    element.neighbours.Add(neighbour);
+                                }
                             }
                         }
                     }
