@@ -14,7 +14,7 @@ public class GridSpawner : MonoBehaviour
     [SerializeField]
     private int columns = 10; // Grid Column Count
 
-    public bool diagonalMotion = true;
+    public bool diagonalMotion = true; // Flag for whether diagonal motion will be allowed on the grid
 
     public List<GameObject> gridElements; // List of all the grid elements
 
@@ -30,28 +30,28 @@ public class GridSpawner : MonoBehaviour
     {
         if (!gridActive)
         {
-            if (gridElements.Count > 0)
+            if (gridElements.Count <= 0)
             {
-                gridActive = true;
-                return;
-            }
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < columns; j++)
+                // Generate all the grid elements
+                for (int i = 0; i < rows; i++)
                 {
-                    float xPos = gridOrigin.position.x + j * 1.0f;
-                    float zPos = gridOrigin.position.z + i * 1.0f;
-                    float yPos = gridOrigin.position.y;
-                    GameObject cube = Instantiate(gridCube, new Vector3(xPos, yPos, zPos), Quaternion.identity, gridOrigin.transform);
-                    cube.GetComponent<GridElement>().SetInitialState(i + 1, j + 1, new Vector2(xPos, zPos));
-                    gridElements.Add(cube);
+                    for (int j = 0; j < columns; j++)
+                    {
+                        float xPos = gridOrigin.position.x + j * 1.0f;
+                        float zPos = gridOrigin.position.z + i * 1.0f;
+                        float yPos = gridOrigin.position.y;
+                        GameObject cube = Instantiate(gridCube, new Vector3(xPos, yPos, zPos), Quaternion.identity, gridOrigin.transform);
+                        cube.GetComponent<GridElement>().SetInitialState(i + 1, j + 1, new Vector2(xPos, zPos));
+                        gridElements.Add(cube);
+                    }
                 }
+                SetupNeighbours(); // Set all the neighbours now
             }
-            SetupNeighbours();
             gridActive = true;
         }
     }
 
+    // Sets the neighbour grids for all the grid elements
     void SetupNeighbours()
     {
         for (int i = 0; i < rows; i++)
@@ -61,32 +61,26 @@ public class GridSpawner : MonoBehaviour
                 int xPos = (int)(gridOrigin.position.x + j * 1.0f);
                 int zPos = (int)(gridOrigin.position.z + i * 1.0f);
                 GridElement element = GetElement(xPos, zPos);
+                // Search all possible neighbours of this grid via position
                 for (int x = -1; x <= 1; x++)
                 {
                     for (int z = -1; z <= 1; z++)
                     {
                         if (x != 0 || z != 0)
                         {
-                            int X = Mathf.Clamp(xPos + x, 0, columns - 1);
-                            int Z = Mathf.Clamp(zPos + z, 0, rows - 1);
+                            int X = CustomMath.Clamp(xPos + x, 0, columns - 1);
+                            int Z = CustomMath.Clamp(zPos + z, 0, rows - 1);
                             GridElement neighbour = GetElement(X, Z);
                             if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable(true))
                             {
-                                if (!diagonalMotion)
+                                if (!diagonalMotion && (x != 0 && z != 0))
                                 {
-                                    if (x == 0 || z == 0)
-                                    {
-                                        element.neighbours.Add(neighbour);
-                                    }
+                                    continue;
                                 }
-                                else
-                                {
-                                    element.neighbours.Add(neighbour);
-                                }
+                                element.neighbours.Add(neighbour);
                             }
                         }
                     }
-
                 }
             }
         }

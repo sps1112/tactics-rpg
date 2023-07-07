@@ -6,15 +6,15 @@ public class InputManager : MonoBehaviour
 {
     private UIManager ui; // UI Manager reference
 
-    private TurnManager turnManager;
+    private TurnManager turnManager; // Turn Manager reference
 
-    public GameObject player;
+    public GameObject player; // Player reference
 
-    public GameObject enemy;
+    private Pathfinding playerPath; // Player pathfinding reference
 
-    private Pathfinding playerPath;
+    public GameObject enemy; // Enemy reference
 
-    private Pathfinding enemyPath;
+    private Pathfinding enemyPath; // Enemy pathfinding reference
 
     void Start()
     {
@@ -30,26 +30,20 @@ public class InputManager : MonoBehaviour
     void FixedUpdate()
     {
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+        // Hovering over a Grid Element
         if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
         {
             ui.SetGridElementUI(hit.collider.gameObject.GetComponent<GridElement>());
         }
         else
         {
-            ui.ResetGirdElementUI();
+            ui.ResetGridElementUI();
         }
     }
 
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            GetComponent<ObstacleManager>().GenerateObstacles();
-        }
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            GetComponent<ObstacleManager>().DeleteObstacles();
-        }
+        // Player's Turn
         if (turnManager.turn == TurnType.PLAYER && !playerPath.moving)
         {
             if (Input.GetMouseButtonDown(0))
@@ -66,48 +60,38 @@ public class InputManager : MonoBehaviour
                 }
             }
         }
+
+        // Enemy's Turn
         if (turnManager.turn == TurnType.ENEMY && !enemyPath.moving)
         {
             GridElement playerGrid = playerPath.GetGrid();
             GridElement enemyGrid = enemyPath.GetGrid();
-            int index = -1;
             int minLen = int.MaxValue;
             int minDist = int.MaxValue;
-            int i = 0;
+            GridElement target = null;
             foreach (GridElement neighbour in playerGrid.neighbours)
             {
-                // Debug.Log("Possible target is:- (" + neighbour.pos.x + ", " + neighbour.pos.y + ")");
                 if (neighbour.IsTraversable(false))
                 {
-                    // Debug.Log("Target is traversable");
                     Path nPath = enemyPath.GetPath(neighbour);
                     int pDist = nPath.GetPathDistance() + enemyGrid.GetDistance(nPath.elements[0]);
-                    // Debug.Log("Path " + i + "'s length is:- " + nPath.length + " and distance is:- " + pDist);
                     if (nPath.length < minLen)
                     {
                         minLen = nPath.length;
                         minDist = pDist;
-                        index = i;
+                        target = neighbour;
                     }
                     else if (nPath.length == minLen)
                     {
                         if (pDist < minDist)
                         {
                             minDist = pDist;
-                            index = i;
+                            target = neighbour;
                         }
                     }
-
                 }
-                else
-                {
-                    // Debug.Log("Target is NOT traversable");
-                }
-                i++;
             }
-            Debug.Log("Final target is:- (" + playerGrid.neighbours[index].pos.x + ", " + playerGrid.neighbours[index].pos.y + ")");
-            Debug.Log("Min Path is:- " + index + " with length:- " + minLen + " and distance:- " + minDist);
-            Path path = enemyPath.GetPath(playerGrid.neighbours[index]);
+            Path path = enemyPath.GetPath(target);
             enemyPath.MoveViaPath(path);
         }
     }

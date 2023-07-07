@@ -4,20 +4,13 @@ using UnityEngine;
 
 public class CustomMath : MonoBehaviour
 {
+    // Clamps the num between min and max
     public static int Clamp(int num, int min, int max)
     {
         if (max < min)
         {
             max = min;
         }
-        if (num < min)
-        {
-            return min;
-        }
-        else if (num > max)
-        {
-            return max;
-        }
-        return num;
+        return (num < min) ? (min) : ((num > max) ? (max) : (num));
     }
 }

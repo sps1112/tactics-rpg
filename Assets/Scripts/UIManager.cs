@@ -11,11 +11,11 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI posText; // Position UI Reference
 
-    public TextMeshProUGUI turnText;
+    public TextMeshProUGUI turnText; // Turn UI Reference
 
     void Start()
     {
-        ResetGirdElementUI();
+        ResetGridElementUI();
     }
 
     // Sets the Grid UI
@@ -26,16 +26,17 @@ public class UIManager : MonoBehaviour
         posText.text = "Pos: (" + element.pos.x.ToString() + ", " + element.pos.y.ToString() + ")";
     }
 
-    public void SetTurnUI(TurnType type)
-    {
-        turnText.text = (type == TurnType.PLAYER) ? ("Player Turn") : ("Enemy Turn");
-    }
-
     // Resets the Grid UI
-    public void ResetGirdElementUI()
+    public void ResetGridElementUI()
     {
         rowText.text = "";
         columnText.text = "";
         posText.text = "";
+    }
+
+    // Sets the Turn UI
+    public void SetTurnUI(TurnType type)
+    {
+        turnText.text = (type == TurnType.PLAYER) ? ("Player Turn") : ("Enemy Turn");
     }
 }

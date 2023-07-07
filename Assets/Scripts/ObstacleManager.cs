@@ -8,7 +8,7 @@ public class ObstacleManager : MonoBehaviour
 
     public List<GameObject> obstacles; // List of obstacles spawned
 
-    private bool obstacleActive = false; // Have the obstacles been generated
+    private bool obstaclesActive = false; // Have the obstacles been generated
 
     [SerializeField]
     private GridSpawner grid = null; // Reference to the grid
@@ -18,18 +18,21 @@ public class ObstacleManager : MonoBehaviour
 
     void Start()
     {
+        grid = GetComponent<GridSpawner>();
         GenerateObstacles();
     }
 
     // Generates the obstacles
     public void GenerateObstacles()
     {
-        if (!obstacleActive)
+        if (!obstaclesActive)
         {
+            // For Obstacle generation via Editor
             if (grid == null)
             {
                 grid = GetComponent<GridSpawner>();
             }
+            // Create Parent object if already not created
             if (obstacleParent == null)
             {
                 GameObject empty = new GameObject("Empty");
@@ -45,21 +48,21 @@ public class ObstacleManager : MonoBehaviour
                     {
                         float xPos = grid.gridOrigin.position.x + j * 1.0f;
                         float zPos = grid.gridOrigin.position.z + i * 1.0f;
-                        float yPos = grid.gridOrigin.position.y + 1.0f;
-                        GameObject sphere = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
+                        float yPos = grid.gridOrigin.position.y + 0.9f;
+                        GameObject obs = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
                         grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
-                        obstacles.Add(sphere);
+                        obstacles.Add(obs);
                     }
                 }
             }
-            obstacleActive = true;
+            obstaclesActive = true;
         }
     }
 
     // Deletes the obstacles
     public void DeleteObstacles()
     {
-        if (obstacleActive)
+        if (obstaclesActive || obstacles.Count > 0)
         {
             foreach (GameObject obstacle in obstacles)
             {
@@ -73,7 +76,7 @@ public class ObstacleManager : MonoBehaviour
                 }
             }
             obstacles.Clear();
-            obstacleActive = false;
+            obstaclesActive = false;
         }
     }
 }

@@ -4,25 +4,18 @@ using UnityEngine;
 
 public class Path
 {
-    public List<GridElement> elements = new List<GridElement>();
+    public List<GridElement> elements = new List<GridElement>(); // List of grid elements in the path
 
-    public int length;
+    public int length; // Number of elements in the path
 
+    // Adds an element to the Path
     public void AddGrid(GridElement element)
     {
         elements.Insert(0, element);
         length++;
     }
 
-    public void PrintPath()
-    {
-        Debug.Log("Path is:-");
-        for (int i = 0; i < length; i++)
-        {
-            Debug.Log(i + ":- (" + elements[i].pos.x + ", " + elements[i].pos.y + ")");
-        }
-    }
-
+    // Gets the distance which will need to be traversered to clear this path
     public int GetPathDistance()
     {
         int distance = 0;
@@ -30,42 +23,56 @@ public class Path
         for (int i = 1; i < length; i++)
         {
             GridElement element2 = elements[i];
-            distance += element2.GetDistance(element1);
+            distance += element1.GetDistance(element2);
             element1 = element2;
         }
         return distance;
+    }
+
+    // Prints the path
+    public void PrintPath()
+    {
+        Debug.Log("Printing Path...");
+        for (int i = 0; i < length; i++)
+        {
+            Debug.Log("At " + i + ":- (" + elements[i].pos.x + ", " + elements[i].pos.y + ")");
+        }
+        Debug.Log("Finished printing");
     }
 }
 
 public class Pathfinding : MonoBehaviour
 {
-    private GridSpawner spawner = null;
+    private GridSpawner spawner = null; // Reference to the Grid Spawner
 
-    public bool isPlayer = true;
+    public bool isPlayer = true; // Whether agent is Player or Enemy
 
-    public bool moving = false;
+    public bool moving = false; // Whether the agent is moving
 
-    public Path movePath = null;
+    public Path movePath = null; // Path being used for moving
 
-    public GridElement nextElement = null;
+    int pathIndex = 0; // Index of which element in the current path to move to
 
-    int pathIndex = 0;
+    public float minDistance = 0.05f; // Minimum Distance before stopping 
 
-    public float minDistance = 0.05f;
+    public float moveSpeed = 7.5f; // Movement Speed while moving
 
-    public float moveSpeed = 10.0f;
+    public float rotateSpeed = 0.1f; // Rotate speed factor while turning
 
-    public GridElement currentGrid = null;
+    public GridElement currentGrid = null; // Grid before moving
 
+    void Start()
+    {
+        spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
+    }
+
+    // Returns the grid which the agent is currently upon
     public GridElement GetGrid()
     {
-        if (spawner == null)
-        {
-            spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
-        }
         return spawner.GetElement(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
     }
 
+    // Sets the grid states and refreshes current grid
     public void SetGrid()
     {
         if (currentGrid != null)
@@ -76,42 +83,34 @@ public class Pathfinding : MonoBehaviour
         currentGrid.SetState((isPlayer) ? (GridState.PLAYER) : (GridState.ENEMY));
     }
 
+    // Gets the Path to the Target Grid
     public Path GetPath(GridElement target)
     {
-        if (spawner == null)
-        {
-            spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
-        }
-        // Debug.Log("0: Current pos is:- " + transform.position);
-        // int xStart = (int)transform.position.x;
-        // int zStart = (int)transform.position.z;
-        // Debug.Log("1: Current pos is:- " + xStart + ", " + zStart);
-        GridElement start = GetGrid();
-        // Debug.Log("Start:- " + start.pos.x + " " + start.pos.y);
-        // Debug.Log("Target:- " + target.pos.x + " " + target.pos.y);
-
+        // Create lists to hold grid elements
         GridHeap openList = new GridHeap();
         GridHeap closedList = new GridHeap();
         List<GridElement> allGrids = new List<GridElement>();
+
+        GridElement start = GetGrid();
+
         GridElement closestGrid = start;
         int closestDist = int.MaxValue;
+
         openList.AddToHeap(start);
         allGrids.Add(start);
+
         int iterations = 0;
         while (openList.count > 0)
         {
-            // Debug.Log("Run:- " + iterations);
-            // Debug.Log("OPEN HEAP");
-            // openList.PrintHeap();
-            // Debug.Log("CLOSED HEAP");
-            // closedList.PrintHeap();
+            // Get Grid Element with the lowest FCost
             GridElement current = openList.PopElement();
-            // Debug.Log("Current is:-" + current.pos.x + " " + current.pos.y);
             closedList.AddToHeap(current);
             if (!allGrids.Contains(current))
             {
                 allGrids.Add(current);
             }
+
+            // Keep Refreshing the Closest Grid to the Target
             if (target != start)
             {
                 if (current == start)
@@ -128,19 +127,19 @@ public class Pathfinding : MonoBehaviour
                     }
                 }
             }
+
+            // Check if reached Target
             if (current == target)
             {
-                // Debug.Log("Reached target");
                 break;
             }
+
+            // Check for all neighbours
             for (int i = 0; i < current.neighbours.Count; i++)
             {
-                // Debug.Log("Searching neighbour: " + i);
                 GridElement neighbour = current.neighbours[i];
-                // Debug.Log("Neighbour is:- " + neighbour.pos.x + " " + neighbour.pos.y);
                 if (neighbour.IsTraversable(isPlayer) && !closedList.HasElement(neighbour))
                 {
-                    // Debug.Log("Checking Neighbour");
                     int moveCost = current.gCost + current.GetDistance(neighbour);
                     if (!openList.HasElement(neighbour) || moveCost < neighbour.gCost)
                     {
@@ -149,16 +148,17 @@ public class Pathfinding : MonoBehaviour
                         neighbour.parent = current;
                         if (!openList.HasElement(neighbour))
                         {
-                            // Debug.Log("Adding this Neighbour");
                             openList.AddToHeap(neighbour);
+                            if (!allGrids.Contains(neighbour))
+                            {
+                                allGrids.Add(neighbour);
+                            }
+
+                            // Refresh Closest Grid
                             if (neighbour.hCost < closestDist)
                             {
                                 closestDist = neighbour.hCost;
                                 closestGrid = neighbour;
-                            }
-                            if (!allGrids.Contains(neighbour))
-                            {
-                                allGrids.Add(neighbour);
                             }
                         }
                         else
@@ -168,12 +168,14 @@ public class Pathfinding : MonoBehaviour
                     }
                 }
             }
+            // Check if no path exists
             if (openList.count == 0)
             {
                 Debug.Log("No Path");
                 target = closestGrid;
                 break;
             }
+
             iterations++;
             if (iterations > 100)
             {
@@ -181,20 +183,18 @@ public class Pathfinding : MonoBehaviour
                 break;
             }
         }
-        // Debug.Log("Found Path");
+
+        // Go over the path elements
         Path path = new Path();
         path.AddGrid(target);
-        // path.PrintPath();
         GridElement element = target.parent;
-        // Debug.Log(element.pos.x + " " + element.pos.y);
-        // Debug.Log("Before Loop");
         while (element != start && element != null)
         {
-            // Debug.Log("Element is:- " + element.pos.x + " " + element.pos.y);
             path.AddGrid(element);
             element = element.parent;
         }
-        // path.PrintPath();
+
+        // Reset all the grids checked for Pathfinding
         for (int i = 0; i < allGrids.Count; i++)
         {
             allGrids[i].gCost = 0;
@@ -205,24 +205,24 @@ public class Pathfinding : MonoBehaviour
         return path;
     }
 
+    // Starts motion along the given path
     public void MoveViaPath(Path path)
     {
         movePath = path;
         moving = true;
         pathIndex = 0;
-        nextElement = path.elements[0];
     }
 
     void Update()
     {
         if (moving)
         {
-            Vector2 displacement = nextElement.pos - new Vector2(transform.position.x, transform.position.z);
+            Vector2 displacement = movePath.elements[pathIndex].pos - new Vector2(transform.position.x, transform.position.z);
             Vector2 direction = displacement.normalized;
+            transform.forward = Vector3.Lerp(transform.forward, new Vector3(direction.x, 0.0f, direction.y), rotateSpeed);
             float distance = displacement.magnitude;
             if (distance < minDistance)
             {
-                // Debug.Log("Move 1 block");
                 pathIndex++;
                 if (pathIndex >= movePath.length)
                 {
@@ -231,7 +231,6 @@ public class Pathfinding : MonoBehaviour
                     GameObject.Find("GameManager").GetComponent<TurnManager>().NextTurn();
                     return;
                 }
-                nextElement = movePath.elements[pathIndex];
             }
             else
             {

@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Defines the State of the Grid Element
+// Defines the State of a Grid Element
 public enum GridState
 {
     EMPTY, // Free Grid 
     BLOCKED, // Blocked by Obstacle
-    PLAYER, // Occupied by Player
-    ENEMY, // Occupied by Enemy
+    PLAYER, // Blocked by Player
+    ENEMY, // Blocked by Enemy
 };
 
 public class GridElement : MonoBehaviour
@@ -17,7 +17,7 @@ public class GridElement : MonoBehaviour
 
     public int column; // Grid Element Column
 
-    public Vector2 pos; // Grid Element Position (World Space)
+    public Vector2 pos; // Absolute Position of Grid Element
 
     public GridState state; // State of Grid Element
 
@@ -46,6 +46,7 @@ public class GridElement : MonoBehaviour
         state = state_;
     }
 
+    // Checks if the Grid can be traversed in respect to the checking agent
     public bool IsTraversable(bool isPlayer)
     {
         if (isPlayer)
@@ -55,109 +56,94 @@ public class GridElement : MonoBehaviour
         return (state != GridState.BLOCKED && state != GridState.PLAYER);
     }
 
-    public int GetDistance(GridElement element)
+    // Gets the distance to the target grid from this grid
+    public int GetDistance(GridElement target)
     {
-        int delX = (int)Mathf.Abs(pos.x - element.pos.x);
-        int delZ = (int)Mathf.Abs(pos.y - element.pos.y);
+        int delX = Mathf.RoundToInt(Mathf.Abs(pos.x - target.pos.x));
+        int delZ = Mathf.RoundToInt(Mathf.Abs(pos.y - target.pos.y));
         return ((14 * Mathf.Min(delX, delZ)) + (10 * (Mathf.Max(delX, delZ) - Mathf.Min(delX, delZ))));
     }
 
+    // Sets the GCost and HCost for this grid
     public void SetCosts(GridElement start, GridElement target)
     {
         gCost = GetDistance(start);
         hCost = GetDistance(target);
     }
 
+    // Returns the FCost as the sum of GCost and HCost
     public int GetFCost()
     {
         return gCost + hCost;
     }
 
+    // Compares two grid elements to give more preferable grid
     public int CompareGridElement(GridElement element)
     {
         int delF = element.GetFCost() - GetFCost();
         return (delF == 0) ? (element.hCost - hCost) : (delF);
     }
 
+    // Prints the details of the current grid 
     public void PrintElement()
     {
-        Debug.Log("Pos:- " + pos.x + ", " + pos.y);
+        Debug.Log("Pos:- (" + pos.x + ", " + pos.y + ")");
         Debug.Log("Index is:- " + index);
-        Debug.Log("Its costs are:- GCost: " + gCost + ", HCost: " + hCost + ", FCost: " + GetFCost());
+        Debug.Log("Its costs are:- GCost:- " + gCost + ", HCost:- " + hCost + "and FCost:- " + GetFCost());
     }
 }
 
 public class GridHeap
 {
-    public List<GridElement> list = new List<GridElement>();
+    public List<GridElement> list = new List<GridElement>(); // List of all the grid elements in the heap
 
-    int maxCount = 0;
+    int maxCount = 0; // The Maximum count of elements which were part of this heap
 
-    public int count = 0;
+    public int count = 0; // Current count of elements in the heap
 
+    // Adds a new element to the heap
     public void AddToHeap(GridElement element)
     {
-        // Debug.Log("Adding Element:- " + element.pos);
         if (!HasElement(element))
         {
-            // Debug.Log("Before Adding, the list was:-");
-            // PrintHeap();
             element.index = count;
             list.Add(element);
             count++;
-            // Debug.Log("Element Added");
             if (maxCount < count)
             {
                 maxCount = count;
             }
-            // Debug.Log("Before Sorting, the list was:-");
-            // PrintHeap();
             SortUp(element);
-            // Debug.Log("After Sorting, the list was:-");
-            // PrintHeap();
-
         }
     }
 
+    // Sorts the Heap upwards from the given element
     public void SortUp(GridElement element)
     {
-        // Debug.Log("Sorting Up");
-        // Debug.Log("Element is:- " + element.pos);
-        // Debug.Log("Index:- " + element.index);
         int pIndex = (element.index - 1) / 2;
-        // Debug.Log("PIndex:- " + pIndex);
         if (pIndex < 0)
         {
-            // Debug.Log("Reached Top");
             return;
         }
         pIndex = CustomMath.Clamp(pIndex, 0, maxCount - 1);
-        // Debug.Log("PIndex:- " + pIndex);
         int iterations = 0;
         while (true)
         {
-            // Debug.Log("At Iteration:- " + iterations + ", PIndex:- " + pIndex);
             GridElement parentElement = list[pIndex];
-            // Debug.Log("Parent Element is:- " + parentElement.pos + " and parent index is:- " + parentElement.index);
             if (element.CompareGridElement(parentElement) > 0)
             {
-                // Debug.Log("Diff is:- " + element.CompareGridElement(parentElement));
                 SwapElements(element, parentElement);
-                // Debug.Log("Parent Element is:- " + parentElement.pos + " and parent index is:- " + parentElement.index);
             }
             else
             {
-                // Debug.Log("Finish Sorting up");
                 break;
             }
             pIndex = (element.index - 1) / 2;
             if (pIndex < 0)
             {
-                // Debug.Log("Reached Top");
                 return;
             }
             pIndex = CustomMath.Clamp(pIndex, 0, maxCount - 1);
-            // pIndex = Mathf.Clamp((element.index - 1) / 2, 0, maxCount - 1);
             iterations++;
             if (iterations > 100)
             {
@@ -167,6 +153,7 @@ public class GridHeap
         }
     }
 
+    // Swaps two elements in the heap
     public void SwapElements(GridElement a, GridElement b)
     {
         list[a.index] = b;
@@ -177,49 +164,28 @@ public class GridHeap
         b.index = index;
     }
 
+    // Pops the top element from the heap removing it
     public GridElement PopElement()
     {
-        // Debug.Log("Getting top");
-        // Debug.Log("Before Popping List was:- ");
-        // PrintHeap();
+
         GridElement element = list[0];
-        // Debug.Log("Element is:- " + element.pos + " and index is:- " + element.index);
-        // Debug.Log("Initially:- ");
-        // Debug.Log("First Element is:- " + list[0].pos + " and index is:- " + list[0].index);
-        // Debug.Log("Final Element is:- " + list[count - 1].pos + " and index is:- " + list[count - 1].index);
         count--;
         if (count > 0)
         {
             GridElement final = list[count];
             list.Remove(list[count]);
-            // Debug.Log("Element Popped.");
-            // Debug.Log("After popping:- ");
-            // Debug.Log("First Element is:- " + list[0].pos + " and index is:- " + list[0].index);
-            // Debug.Log("Final Element is:- " + list[count - 1].pos + " and index is:- " + list[count - 1].index);
             list[0] = final;
             list[0].index = 0;
-            // list[0] = list[count];
-            // list[0].index = 0;
-            // Debug.Log("After setting data:- ");
-            // Debug.Log("First Element is:- " + list[0].pos + " and index is:- " + list[0].index);
-            // Debug.Log("Final Element is:- " + list[count - 1].pos + " and index is:- " + list[count - 1].index);
-            // Debug.Log("New List before sorting is:- ");
-            // PrintHeap();
             SortDown(list[0]);
-            // Debug.Log("Sorted Down");
-            // Debug.Log("After sorting:- ");
-            // Debug.Log("First Element is:- " + list[0].pos + " and index is:- " + list[0].index);
-            // Debug.Log("Final Element is:- " + list[count - 1].pos + " and index is:- " + list[count - 1].index);
         }
         else
         {
             list.Clear();
         }
-        // Debug.Log("New List after sorting is:- ");
-        // PrintHeap();
         return element;
     }
 
+    // Sorts the Heap downwards from the given element
     void SortDown(GridElement element)
     {
         int iterations = 0;
@@ -252,7 +218,7 @@ public class GridHeap
                 return;
             }
             iterations++;
-            if (iterations > 25)
+            if (iterations > 100)
             {
                 Debug.LogError("CRASH DOWN");
                 break;
@@ -260,6 +226,7 @@ public class GridHeap
         }
     }
 
+    // Checks if the heap has the given element
     public bool HasElement(GridElement element)
     {
         if (count > 0 && element.index < count)
@@ -269,11 +236,14 @@ public class GridHeap
         return false;
     }
 
+    // Sorts the Heap upwards from the given element
     public void UpdateElement(GridElement element)
     {
         SortUp(element);
     }
 
+
+    // Prints the Heap
     public void PrintHeap()
     {
         Debug.Log("Printing Heap...");
@@ -288,17 +258,6 @@ public class GridHeap
             Debug.Log("At:- " + i);
             list[i].PrintElement();
         }
-        Debug.Log("Finished print.");
-        // Debug.Log("Simple Print of list is:-");
-        // int j = 0;
-        // foreach (GridElement element in list)
-        // {
-        //     Debug.Log("Index is:- " + j);
-        //     element.PrintElement();
-        //     Debug.Log("Its index was:- " + element.index);
-        //     Debug.Log("Its costs are:- GCost: " + element.gCost + ", HCost: " + element.hCost + ", FCost: " + element.GetFCost());
-        //     j++;
-        // }
-        // Debug.Log("Finished simple print");
+        Debug.Log("Finished printing");
     }
 }
