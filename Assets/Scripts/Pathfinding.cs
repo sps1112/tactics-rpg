@@ -41,6 +41,8 @@ public class Pathfinding : MonoBehaviour
 {
     private GridSpawner spawner = null;
 
+    public bool isPlayer = true;
+
     public bool moving = false;
 
     public Path movePath = null;
@@ -53,6 +55,8 @@ public class Pathfinding : MonoBehaviour
 
     public float moveSpeed = 10.0f;
 
+    public GridElement currentGrid = null;
+
     public GridElement GetGrid()
     {
         if (spawner == null)
@@ -60,6 +64,16 @@ public class Pathfinding : MonoBehaviour
             spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
         }
         return spawner.GetElement(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
+    }
+
+    public void SetGrid()
+    {
+        if (currentGrid != null)
+        {
+            currentGrid.SetState(GridState.EMPTY);
+        }
+        currentGrid = GetGrid();
+        currentGrid.SetState((isPlayer) ? (GridState.PLAYER) : (GridState.ENEMY));
     }
 
     public Path GetPath(GridElement target)
@@ -124,7 +138,7 @@ public class Pathfinding : MonoBehaviour
                 // Debug.Log("Searching neighbour: " + i);
                 GridElement neighbour = current.neighbours[i];
                 // Debug.Log("Neighbour is:- " + neighbour.pos.x + " " + neighbour.pos.y);
-                if (neighbour.IsTraversable() && !closedList.HasElement(neighbour))
+                if (neighbour.IsTraversable(isPlayer) && !closedList.HasElement(neighbour))
                 {
                     // Debug.Log("Checking Neighbour");
                     int moveCost = current.gCost + current.GetDistance(neighbour);
@@ -213,6 +227,7 @@ public class Pathfinding : MonoBehaviour
                 if (pathIndex >= movePath.length)
                 {
                     moving = false;
+                    SetGrid();
                     GameObject.Find("GameManager").GetComponent<TurnManager>().NextTurn();
                     return;
                 }

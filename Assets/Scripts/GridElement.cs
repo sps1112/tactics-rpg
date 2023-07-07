@@ -7,7 +7,8 @@ public enum GridState
 {
     EMPTY, // Free Grid 
     BLOCKED, // Blocked by Obstacle
-    OCCUPIED, // Occupied by Player
+    PLAYER, // Occupied by Player
+    ENEMY, // Occupied by Enemy
 };
 
 public class GridElement : MonoBehaviour
@@ -45,9 +46,13 @@ public class GridElement : MonoBehaviour
         state = state_;
     }
 
-    public bool IsTraversable()
+    public bool IsTraversable(bool isPlayer)
     {
-        return (state != GridState.BLOCKED);
+        if (isPlayer)
+        {
+            return (state != GridState.BLOCKED && state != GridState.ENEMY);
+        }
+        return (state != GridState.BLOCKED && state != GridState.PLAYER);
     }
 
     public int GetDistance(GridElement element)

@@ -70,7 +70,7 @@ public class GridSpawner : MonoBehaviour
                             int X = Mathf.Clamp(xPos + x, 0, columns - 1);
                             int Z = Mathf.Clamp(zPos + z, 0, rows - 1);
                             GridElement neighbour = GetElement(X, Z);
-                            if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable())
+                            if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable(true))
                             {
                                 if (!diagonalMotion)
                                 {

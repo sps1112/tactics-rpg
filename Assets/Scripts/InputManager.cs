@@ -22,7 +22,9 @@ public class InputManager : MonoBehaviour
         turnManager = GetComponent<TurnManager>();
         ui.SetTurnUI(turnManager.turn);
         playerPath = player.GetComponent<Pathfinding>();
+        playerPath.SetGrid();
         enemyPath = enemy.GetComponent<Pathfinding>();
+        enemyPath.SetGrid();
     }
 
     void FixedUpdate()
@@ -56,7 +58,7 @@ public class InputManager : MonoBehaviour
                 if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
                 {
                     GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
-                    if (element.IsTraversable())
+                    if (element.IsTraversable(true))
                     {
                         Path path = playerPath.GetPath(element);
                         playerPath.MoveViaPath(path);
@@ -75,7 +77,7 @@ public class InputManager : MonoBehaviour
             foreach (GridElement neighbour in playerGrid.neighbours)
             {
                 // Debug.Log("Possible target is:- (" + neighbour.pos.x + ", " + neighbour.pos.y + ")");
-                if (neighbour.IsTraversable())
+                if (neighbour.IsTraversable(false))
                 {
                     // Debug.Log("Target is traversable");
                     Path nPath = enemyPath.GetPath(neighbour);
