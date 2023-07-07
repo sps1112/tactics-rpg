@@ -268,7 +268,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c6f79dcca07518468fb81ed6402ba80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPlayer: 1
   moving: 0
   nextElement: {fileID: 0}
   minDistance: 0.05
   moveSpeed: 4
+  rotateSpeed: 0.2
+  currentGrid: {fileID: 0}
