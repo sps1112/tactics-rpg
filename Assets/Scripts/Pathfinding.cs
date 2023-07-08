@@ -183,7 +183,7 @@ public class Pathfinding : MonoBehaviour
             }
 
             iterations++;
-            if (iterations > 100)
+            if (iterations > 250)
             {
                 Debug.LogError("CRASH PATH");
                 break;

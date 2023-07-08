@@ -148,7 +148,7 @@ public class GridHeap
             }
             pIndex = CustomMath.Clamp(pIndex, 0, maxCount - 1);
             iterations++;
-            if (iterations > 100)
+            if (iterations > 250)
             {
                 Debug.LogError("CRASH UP");
                 break;
@@ -221,7 +221,7 @@ public class GridHeap
                 return;
             }
             iterations++;
-            if (iterations > 100)
+            if (iterations > 250)
             {
                 Debug.LogError("CRASH DOWN");
                 break;

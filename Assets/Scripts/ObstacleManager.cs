@@ -27,33 +27,43 @@ public class ObstacleManager : MonoBehaviour
     {
         if (!obstaclesActive)
         {
-            // For Obstacle generation via Editor
-            if (grid == null)
+            if (obstacles.Count <= 0)
             {
-                grid = GetComponent<GridSpawner>();
-            }
-            // Create Parent object if already not created
-            if (obstacleParent == null)
-            {
-                GameObject empty = new GameObject("Empty");
-                obstacleParent = Instantiate(empty, Vector3.zero, Quaternion.identity, grid.gridOrigin.transform);
-                obstacleParent.name = "Obstacles";
-                Destroy(empty);
-            }
-            for (int i = 0; i < layout.rows; i++)
-            {
-                for (int j = 0; j < layout.columns; j++)
+                // For Obstacle generation via Editor
+                if (grid == null)
                 {
-                    if (layout.layout[i * layout.columns + j])
+                    grid = GetComponent<GridSpawner>();
+                }
+                // Create Parent object if already not created
+                if (obstacleParent == null)
+                {
+                    GameObject empty = new GameObject("Empty");
+                    obstacleParent = Instantiate(empty, Vector3.zero, Quaternion.identity, grid.gridOrigin.transform);
+                    obstacleParent.name = "Obstacles";
+                    if (Application.isEditor)
                     {
-                        float xPos = grid.gridOrigin.position.x + j * 1.0f;
-                        float zPos = grid.gridOrigin.position.z + i * 1.0f;
-                        if (grid.GetElement((int)xPos, (int)zPos) != null)
+                        DestroyImmediate(empty);
+                    }
+                    else
+                    {
+                        Destroy(empty);
+                    }
+                }
+                for (int i = 0; i < layout.rows; i++)
+                {
+                    for (int j = 0; j < layout.columns; j++)
+                    {
+                        if (layout.layout[i * layout.columns + j])
                         {
-                            float yPos = grid.GetElement((int)xPos, (int)zPos).transform.position.y + 0.65f;
-                            GameObject obs = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
-                            grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
-                            obstacles.Add(obs);
+                            float xPos = grid.gridOrigin.position.x + j * 1.0f;
+                            float zPos = grid.gridOrigin.position.z + i * 1.0f;
+                            if (grid.GetElement((int)xPos, (int)zPos) != null)
+                            {
+                                float yPos = grid.GetElement((int)xPos, (int)zPos).transform.position.y + 0.65f;
+                                GameObject obs = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
+                                grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
+                                obstacles.Add(obs);
+                            }
                         }
                     }
                 }
