@@ -45,19 +45,26 @@ public class GridSpawner : MonoBehaviour
                         Instantiate(layout.bottom, gridPos + Vector3.up * heightOffsets[0], Quaternion.identity, gridParent.transform);
                         int height = layout.layout[i * layout.columns + j];
                         Vector3 blockPos = gridPos + Vector3.up * heightOffsets[1];
-                        for (int k = 1; k <= height; k++)
+                        if (height <= 0)
                         {
-                            if (k == height)
+                            gridElements.Add(empty);
+                        }
+                        else
+                        {
+                            for (int k = 1; k <= height; k++)
                             {
-                                GameObject cube = Instantiate(layout.top, blockPos, Quaternion.identity, gridParent.transform);
-                                cube.GetComponent<GridElement>().SetInitialState(i + 1, j + 1, new Vector2(xPos, zPos));
-                                gridElements.Add(cube);
+                                if (k == height)
+                                {
+                                    GameObject cube = Instantiate(layout.top, blockPos, Quaternion.identity, gridParent.transform);
+                                    cube.GetComponent<GridElement>().SetInitialState(i + 1, j + 1, new Vector2(xPos, zPos), height);
+                                    gridElements.Add(cube);
+                                }
+                                else
+                                {
+                                    Instantiate(layout.mid, blockPos, Quaternion.identity, gridParent.transform);
+                                }
+                                blockPos += Vector3.up * heightOffsets[2];
                             }
-                            else
-                            {
-                                Instantiate(layout.mid, blockPos, Quaternion.identity, gridParent.transform);
-                            }
-                            blockPos += Vector3.up * heightOffsets[2];
                         }
                         gridParents.Add(gridParent);
                     }
@@ -85,24 +92,33 @@ public class GridSpawner : MonoBehaviour
             {
                 int xPos = (int)(gridOrigin.position.x + j * 1.0f);
                 int zPos = (int)(gridOrigin.position.z + i * 1.0f);
-                GridElement element = GetElement(xPos, zPos);
-                // Search all possible neighbours of this grid via position
-                for (int x = -1; x <= 1; x++)
+                if (layout.layout[i * layout.columns + j] > 0)
                 {
-                    for (int z = -1; z <= 1; z++)
+                    GridElement element = GetElement(xPos, zPos);
+                    // Search all possible neighbours of this grid via position
+                    for (int x = -1; x <= 1; x++)
                     {
-                        if (x != 0 || z != 0)
+                        for (int z = -1; z <= 1; z++)
                         {
-                            int X = CustomMath.Clamp(xPos + x, 0, layout.columns - 1);
-                            int Z = CustomMath.Clamp(zPos + z, 0, layout.rows - 1);
-                            GridElement neighbour = GetElement(X, Z);
-                            if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable(true))
+                            if (x != 0 || z != 0)
                             {
-                                if (!diagonalMotion && (x != 0 && z != 0))
+                                int X = CustomMath.Clamp(xPos + x, 0, layout.columns - 1);
+                                int Z = CustomMath.Clamp(zPos + z, 0, layout.rows - 1);
+                                if (layout.layout[Z * layout.columns + X] > 0)
                                 {
-                                    continue;
+                                    GridElement neighbour = GetElement(X, Z);
+                                    if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable(true))
+                                    {
+                                        if (!diagonalMotion && (x != 0 && z != 0))
+                                        {
+                                            continue;
+                                        }
+                                        if (Mathf.Abs(neighbour.height - element.height) <= 1)
+                                        {
+                                            element.neighbours.Add(neighbour);
+                                        }
+                                    }
                                 }
-                                element.neighbours.Add(neighbour);
                             }
                         }
                     }
@@ -147,6 +163,10 @@ public class GridSpawner : MonoBehaviour
     // Returns the Grid Element based on Position
     public GridElement GetElement(int x, int z)
     {
-        return gridElements[x + z * layout.columns].GetComponent<GridElement>();
+        if (layout.layout[x + z * layout.columns] > 0)
+        {
+            return gridElements[x + z * layout.columns].GetComponent<GridElement>();
+        }
+        return null;
     }
 }

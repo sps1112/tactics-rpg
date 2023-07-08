@@ -48,10 +48,13 @@ public class ObstacleManager : MonoBehaviour
                     {
                         float xPos = grid.gridOrigin.position.x + j * 1.0f;
                         float zPos = grid.gridOrigin.position.z + i * 1.0f;
-                        float yPos = grid.gridOrigin.position.y + 0.9f;
-                        GameObject obs = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
-                        grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
-                        obstacles.Add(obs);
+                        if (grid.GetElement((int)xPos, (int)zPos) != null)
+                        {
+                            float yPos = grid.GetElement((int)xPos, (int)zPos).transform.position.y + 0.65f;
+                            GameObject obs = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
+                            grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
+                            obstacles.Add(obs);
+                        }
                     }
                 }
             }

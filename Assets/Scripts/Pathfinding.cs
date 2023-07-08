@@ -55,6 +55,12 @@ public class Pathfinding : MonoBehaviour
 
     public float minDistance = 0.05f; // Minimum Distance before stopping 
 
+    public float jumpSpeed = 0.025f;
+
+    public float maxYDiff = 0.65f;
+
+    public float minDistJump = 0.35f;
+
     public float moveSpeed = 7.5f; // Movement Speed while moving
 
     public float rotateSpeed = 0.1f; // Rotate speed factor while turning
@@ -219,7 +225,7 @@ public class Pathfinding : MonoBehaviour
         {
             Vector2 displacement = movePath.elements[pathIndex].pos - new Vector2(transform.position.x, transform.position.z);
             Vector2 direction = displacement.normalized;
-            transform.forward = Vector3.Lerp(transform.forward, new Vector3(direction.x, 0.0f, direction.y), rotateSpeed);
+            transform.forward = Vector3.RotateTowards(transform.forward, new Vector3(direction.x, 0.0f, direction.y), rotateSpeed, 0.0f);
             float distance = displacement.magnitude;
             if (distance < minDistance)
             {
@@ -227,6 +233,7 @@ public class Pathfinding : MonoBehaviour
                 if (pathIndex >= movePath.length)
                 {
                     moving = false;
+                    transform.forward = new Vector3(direction.x, 0.0f, direction.y);
                     SetGrid();
                     GameObject.Find("GameManager").GetComponent<TurnManager>().NextTurn();
                     return;
@@ -235,6 +242,24 @@ public class Pathfinding : MonoBehaviour
             else
             {
                 Vector3 pos = transform.position;
+                float heightDiff = movePath.elements[pathIndex].height - GetGrid().height;
+                if (heightDiff != 0 && distance < minDistJump)
+                {
+                    float currentGridY = GetGrid().transform.position.y;
+                    float nextGridY = movePath.elements[pathIndex].transform.position.y;
+                    float yDiff = nextGridY - currentGridY;
+                    float jumpHeight = Mathf.Lerp(0.0f, yDiff, jumpSpeed);
+                    float newY = pos.y + jumpHeight;
+                    if (heightDiff > 0)
+                    {
+                        newY = Mathf.Clamp(newY, currentGridY + maxYDiff, nextGridY + maxYDiff);
+                    }
+                    else
+                    {
+                        newY = Mathf.Clamp(newY, nextGridY + maxYDiff, currentGridY + maxYDiff);
+                    }
+                    pos.y = newY;
+                }
                 pos += new Vector3(direction.x, 0.0f, direction.y) * moveSpeed * Time.deltaTime;
                 transform.position = pos;
             }

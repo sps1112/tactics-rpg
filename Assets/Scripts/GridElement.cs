@@ -19,6 +19,8 @@ public class GridElement : MonoBehaviour
 
     public Vector2 pos; // Absolute Position of Grid Element
 
+    public int height; // Height of the Grid Element
+
     public GridState state; // State of Grid Element
 
     public List<GridElement> neighbours; // List of neightbour grids
@@ -32,12 +34,13 @@ public class GridElement : MonoBehaviour
     public int index = 0; // Index in the Heap
 
     // Sets the state of the Grid Element
-    public void SetInitialState(int row_, int column_, Vector2 pos_)
+    public void SetInitialState(int row_, int column_, Vector2 pos_, int height_)
     {
         row = row_;
         column = column_;
         pos = pos_;
         state = GridState.EMPTY;
+        height = height_;
     }
 
     // Sets the Grid state to some input state

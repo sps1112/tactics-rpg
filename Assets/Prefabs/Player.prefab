@@ -270,8 +270,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPlayer: 1
   moving: 0
-  nextElement: {fileID: 0}
   minDistance: 0.05
-  moveSpeed: 4
-  rotateSpeed: 0.2
+  jumpSpeed: 0.1
+  maxYDiff: 0.65
+  minDistJump: 0.8
+  moveSpeed: 3.5
+  rotateSpeed: 0.075
   currentGrid: {fileID: 0}
