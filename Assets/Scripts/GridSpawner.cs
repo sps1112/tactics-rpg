@@ -4,17 +4,15 @@ using UnityEngine;
 
 public class GridSpawner : MonoBehaviour
 {
+    public GridLayout layout; // Reference to the grid layout object
+
     public Transform gridOrigin; // Start point for grid generation
 
-    public GameObject gridCube; // Prefab for Grid Element
-
-    [SerializeField]
-    private int rows = 10; // Grid Row Count
-
-    [SerializeField]
-    private int columns = 10; // Grid Column Count
+    public float[] heightOffsets; // Offsets for the different types of gridblocks
 
     public bool diagonalMotion = true; // Flag for whether diagonal motion will be allowed on the grid
+
+    public List<GameObject> gridParents; // List of all Grid Parent objects
 
     public List<GameObject> gridElements; // List of all the grid elements
 
@@ -30,20 +28,47 @@ public class GridSpawner : MonoBehaviour
     {
         if (!gridActive)
         {
-            if (gridElements.Count <= 0)
+            if (gridParents.Count <= 0)
             {
                 // Generate all the grid elements
-                for (int i = 0; i < rows; i++)
+                GameObject empty = new GameObject("Empty");
+                for (int i = 0; i < layout.rows; i++)
                 {
-                    for (int j = 0; j < columns; j++)
+                    for (int j = 0; j < layout.columns; j++)
                     {
                         float xPos = gridOrigin.position.x + j * 1.0f;
                         float zPos = gridOrigin.position.z + i * 1.0f;
                         float yPos = gridOrigin.position.y;
-                        GameObject cube = Instantiate(gridCube, new Vector3(xPos, yPos, zPos), Quaternion.identity, gridOrigin.transform);
-                        cube.GetComponent<GridElement>().SetInitialState(i + 1, j + 1, new Vector2(xPos, zPos));
-                        gridElements.Add(cube);
+                        Vector3 gridPos = new Vector3(xPos, yPos, zPos);
+                        GameObject gridParent = Instantiate(empty, gridPos, Quaternion.identity, gridOrigin.transform);
+                        gridParent.name = "Grid " + (i + 1).ToString() + "X" + (j + 1).ToString();
+                        Instantiate(layout.bottom, gridPos + Vector3.up * heightOffsets[0], Quaternion.identity, gridParent.transform);
+                        int height = layout.layout[i * layout.columns + j];
+                        Vector3 blockPos = gridPos + Vector3.up * heightOffsets[1];
+                        for (int k = 1; k <= height; k++)
+                        {
+                            if (k == height)
+                            {
+                                GameObject cube = Instantiate(layout.top, blockPos, Quaternion.identity, gridParent.transform);
+                                cube.GetComponent<GridElement>().SetInitialState(i + 1, j + 1, new Vector2(xPos, zPos));
+                                gridElements.Add(cube);
+                            }
+                            else
+                            {
+                                Instantiate(layout.mid, blockPos, Quaternion.identity, gridParent.transform);
+                            }
+                            blockPos += Vector3.up * heightOffsets[2];
+                        }
+                        gridParents.Add(gridParent);
                     }
+                }
+                if (Application.isEditor)
+                {
+                    DestroyImmediate(empty);
+                }
+                else
+                {
+                    Destroy(empty);
                 }
                 SetupNeighbours(); // Set all the neighbours now
             }
@@ -54,9 +79,9 @@ public class GridSpawner : MonoBehaviour
     // Sets the neighbour grids for all the grid elements
     void SetupNeighbours()
     {
-        for (int i = 0; i < rows; i++)
+        for (int i = 0; i < layout.rows; i++)
         {
-            for (int j = 0; j < columns; j++)
+            for (int j = 0; j < layout.columns; j++)
             {
                 int xPos = (int)(gridOrigin.position.x + j * 1.0f);
                 int zPos = (int)(gridOrigin.position.z + i * 1.0f);
@@ -68,8 +93,8 @@ public class GridSpawner : MonoBehaviour
                     {
                         if (x != 0 || z != 0)
                         {
-                            int X = CustomMath.Clamp(xPos + x, 0, columns - 1);
-                            int Z = CustomMath.Clamp(zPos + z, 0, rows - 1);
+                            int X = CustomMath.Clamp(xPos + x, 0, layout.columns - 1);
+                            int Z = CustomMath.Clamp(zPos + z, 0, layout.rows - 1);
                             GridElement neighbour = GetElement(X, Z);
                             if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable(true))
                             {
@@ -89,7 +114,7 @@ public class GridSpawner : MonoBehaviour
     // Deletes the Grid
     public void DeleteGrid()
     {
-        if (gridActive || gridElements.Count > 0)
+        if (gridActive || gridParents.Count > 0)
         {
             foreach (GameObject gridElement in gridElements)
             {
@@ -103,6 +128,18 @@ public class GridSpawner : MonoBehaviour
                 }
             }
             gridElements.Clear();
+            foreach (GameObject gridParent in gridParents)
+            {
+                if (Application.isEditor)
+                {
+                    DestroyImmediate(gridParent);
+                }
+                else
+                {
+                    Destroy(gridParent);
+                }
+            }
+            gridParents.Clear();
             gridActive = false;
         }
     }
@@ -110,6 +147,6 @@ public class GridSpawner : MonoBehaviour
     // Returns the Grid Element based on Position
     public GridElement GetElement(int x, int z)
     {
-        return gridElements[x + z * columns].GetComponent<GridElement>();
+        return gridElements[x + z * layout.columns].GetComponent<GridElement>();
     }
 }

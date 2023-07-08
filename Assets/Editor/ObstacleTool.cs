@@ -16,7 +16,6 @@ public class ObstacleTool : EditorWindow
     void OnGUI()
     {
         asset = (ObstacleLayout)AssetDatabase.LoadAssetAtPath(path, typeof(ObstacleLayout));
-        // asset = (ObstacleLayout)EditorGUILayout.ObjectField("Layout File", asset, typeof(ObstacleType), true);
         GUILayout.Label("Map Obstacles:-");
         asset.rows = EditorGUILayout.IntField("Rows:- ", asset.rows);
         asset.columns = EditorGUILayout.IntField("Columns:- ", asset.columns);
