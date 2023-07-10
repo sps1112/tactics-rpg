@@ -5,6 +5,8 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
+    public GameObject gridElementUI; // Reference to the parent grid element object
+
     public TextMeshProUGUI rowText; // Row UI Reference
 
     public TextMeshProUGUI columnText; // Column UI Reference
@@ -21,6 +23,7 @@ public class UIManager : MonoBehaviour
     // Sets the Grid UI
     public void SetGridElementUI(GridElement element)
     {
+        gridElementUI.SetActive(true);
         rowText.text = "Row: " + element.row.ToString();
         columnText.text = "Column: " + element.column.ToString();
         posText.text = "Pos: (" + element.pos.x.ToString() + ", " + element.pos.y.ToString() + ")";
@@ -32,6 +35,7 @@ public class UIManager : MonoBehaviour
         rowText.text = "";
         columnText.text = "";
         posText.text = "";
+        gridElementUI.SetActive(false);
     }
 
     // Sets the Turn UI
