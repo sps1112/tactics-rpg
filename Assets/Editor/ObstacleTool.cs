@@ -3,9 +3,11 @@ using UnityEditor;
 
 public class ObstacleTool : EditorWindow
 {
-    string path = "Assets/Data/ObstacleLayout.asset"; // Path to obstacle layout asset
+    string path = "Assets/Data/"; // Path to Obstacle Layout folder
 
-    ObstacleLayout asset;
+    ObstacleLayout asset = null; // Reference to the asset being changed
+
+    WindowStates state = WindowStates.EMPTY; // Current state of the Obstacle Editor window
 
     [MenuItem("Window/Obstacles")]
     public static void ShowWindow()
@@ -15,30 +17,74 @@ public class ObstacleTool : EditorWindow
 
     void OnGUI()
     {
-        asset = (ObstacleLayout)AssetDatabase.LoadAssetAtPath(path, typeof(ObstacleLayout));
-        GUILayout.Label("Map Obstacles:-");
-        asset.rows = EditorGUILayout.IntField("Rows:- ", asset.rows);
-        asset.columns = EditorGUILayout.IntField("Columns:- ", asset.columns);
-        asset.obstacle = (GameObject)EditorGUILayout.ObjectField("Obstacle", asset.obstacle, typeof(GameObject), true);
-        if (GUILayout.Button("Refresh Layout"))
+        if (state == WindowStates.EMPTY)
         {
-            asset.layout = new bool[asset.rows * asset.columns];
-        }
-        GUILayout.Label("Layout:- ");
-        for (int i = 0; i < asset.rows; i++)
-        {
-            GUILayout.BeginHorizontal();
-            for (int j = 0; j < asset.columns; j++)
+            GUILayout.Label("Choose option:-");
+            GUILayout.Label("");
+            if (GUILayout.Button("Create New Layout"))
             {
-                asset.layout[(asset.rows - i - 1) * asset.columns + j] = EditorGUILayout.Toggle(asset.layout[(asset.rows - i - 1) * asset.columns + j]);
+                state = WindowStates.NEW;
+            }
+            if (GUILayout.Button("Load Level Layout"))
+            {
+                state = WindowStates.LOAD;
+            }
+        }
+        if (state != WindowStates.EMPTY)
+        {
+            if (state == WindowStates.NEW)
+            {
+                if (asset == null)
+                {
+                    ObstacleLayout layout = new ObstacleLayout();
+                    string newPath = AssetDatabase.GenerateUniqueAssetPath(path + "NewObstacleLayout.asset");
+                    AssetDatabase.CreateAsset(layout, newPath);
+                    AssetDatabase.SaveAssets();
+                    asset = layout;
+                }
+            }
+            else if (state == WindowStates.LOAD)
+            {
+                asset = (ObstacleLayout)EditorGUILayout.ObjectField("Obstacle Layout", asset, typeof(ObstacleLayout), true);
+            }
+            if (asset != null)
+            {
+                GUILayout.Label("Edit Grid Obstacles:-");
+                asset.rows = EditorGUILayout.IntField("Rows:- ", asset.rows);
+                asset.columns = EditorGUILayout.IntField("Columns:- ", asset.columns);
+                asset.obstacle = (GameObject)EditorGUILayout.ObjectField("Obstacle", asset.obstacle, typeof(GameObject), true);
+                if (GUILayout.Button("Refresh Layout"))
+                {
+                    asset.layout = new bool[asset.rows * asset.columns];
+                }
+                GUILayout.Label("Layout:- ");
+                for (int i = 0; i < asset.rows; i++)
+                {
+                    GUILayout.BeginHorizontal();
+                    for (int j = 0; j < asset.columns; j++)
+                    {
+                        asset.layout[(asset.rows - i - 1) * asset.columns + j] = EditorGUILayout.Toggle(asset.layout[(asset.rows - i - 1) * asset.columns + j]);
+                    }
+                    GUILayout.EndHorizontal();
+                }
+            }
+            else
+            {
+                GUILayout.Label("No Obstacle Layout Selected");
+            }
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Save Obstacle Layout"))
+            {
+                AssetDatabase.Refresh();
+                EditorUtility.SetDirty(asset);
+                AssetDatabase.SaveAssets();
+            }
+            if (GUILayout.Button("Back"))
+            {
+                asset = null;
+                state = WindowStates.EMPTY;
             }
             GUILayout.EndHorizontal();
-        }
-        if (GUILayout.Button("Save Layout"))
-        {
-            AssetDatabase.Refresh();
-            EditorUtility.SetDirty(asset);
-            AssetDatabase.SaveAssets();
         }
     }
 }
