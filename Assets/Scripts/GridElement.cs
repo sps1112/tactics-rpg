@@ -33,6 +33,19 @@ public class GridElement : MonoBehaviour
 
     public int index = 0; // Index in the Heap
 
+    private Renderer highlight; // Reference to the grid highlight material
+
+    public Color normalHColor; // Highlight color for normal grids
+
+    public Color blockedHColor; // Highlight color for blocked grids
+
+    public Color hiddenHColor; // Highlight color when not hovering
+
+    void Start()
+    {
+        highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>();
+    }
+
     // Sets the state of the Grid Element
     public void SetInitialState(int row_, int column_, Vector2 pos_, int height_)
     {
@@ -85,6 +98,18 @@ public class GridElement : MonoBehaviour
     {
         int delF = element.GetFCost() - GetFCost();
         return (delF == 0) ? (element.hCost - hCost) : (delF);
+    }
+
+    // Highlights the current grid
+    public void ShowHighlight()
+    {
+        highlight.material.color = (IsTraversable(true)) ? (normalHColor) : (blockedHColor);
+    }
+
+    // Removes highlight from the grid
+    public void HideHighlight()
+    {
+        highlight.material.color = hiddenHColor;
     }
 
     // Prints the details of the current grid 

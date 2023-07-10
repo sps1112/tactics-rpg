@@ -16,6 +16,8 @@ public class InputManager : MonoBehaviour
 
     private Pathfinding enemyPath; // Enemy pathfinding reference
 
+    private GridElement currentGrid = null; // Reference to the last grid 
+
     void Start()
     {
         ui = GetComponent<UIManager>();
@@ -29,15 +31,43 @@ public class InputManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-        // Hovering over a Grid Element
-        if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+        if (turnManager.turn == TurnType.PLAYER && !playerPath.moving)
         {
-            ui.SetGridElementUI(hit.collider.gameObject.GetComponent<GridElement>());
+
+            Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+            // Hovering over a Grid Element
+            if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+            {
+                if (currentGrid != null)
+                {
+                    if (hit.collider.gameObject.GetComponent<GridElement>() == currentGrid)
+                    {
+                        return;
+                    }
+                    currentGrid.HideHighlight();
+                }
+                currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
+                ui.SetGridElementUI(currentGrid);
+                currentGrid.ShowHighlight();
+            }
+            else
+            {
+                if (currentGrid != null)
+                {
+                    ui.ResetGridElementUI();
+                    currentGrid.HideHighlight();
+                    currentGrid = null;
+                }
+            }
         }
-        else
+        if (turnManager.turn == TurnType.ENEMY)
         {
-            ui.ResetGridElementUI();
+            if (currentGrid != null)
+            {
+                ui.ResetGridElementUI();
+                currentGrid.HideHighlight();
+                currentGrid = null;
+            }
         }
     }
 
