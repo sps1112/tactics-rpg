@@ -39,6 +39,7 @@ public class TurnManager : MonoBehaviour
         enemyPath = enemy.GetComponent<Pathfinding>();
         enemyPath.SetGrid();
         enemyGrid = enemyPath.GetGrid();
+        Camera.main.GetComponent<CameraFollow>().SetTarget(player);
     }
 
     // Starts the next turn
@@ -46,7 +47,17 @@ public class TurnManager : MonoBehaviour
     {
         playerGrid.HideHighlight();
         enemyGrid.HideHighlight();
-        turn = (turn == TurnType.PLAYER) ? TurnType.ENEMY : TurnType.PLAYER;
+        if (turn == TurnType.PLAYER)
+        {
+            turn = TurnType.ENEMY;
+            Camera.main.GetComponent<CameraFollow>().SetTarget(enemy);
+        }
+        else
+        {
+            turn = TurnType.PLAYER;
+            Camera.main.GetComponent<CameraFollow>().SetTarget(player);
+            Camera.main.GetComponent<CameraFollow>().SetMotion(false);
+        }
         turnCounter++;
         ui.SetTurnUI(turn, turnCounter);
     }
@@ -65,6 +76,8 @@ public class TurnManager : MonoBehaviour
     {
         Path path = playerPath.GetPath(target);
         playerGrid.PathHighlight(false);
+        Camera.main.GetComponent<CameraFollow>().SetTarget(player);
+        Camera.main.GetComponent<CameraFollow>().SetMotion(true);
         playerPath.MoveViaPath(path);
     }
 
