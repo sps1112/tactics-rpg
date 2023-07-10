@@ -29,6 +29,28 @@ public class Path
         return distance;
     }
 
+    // Checks if the path is a complete path to the given target grid
+    public bool IsCompletePath(GridElement target)
+    {
+        return (elements[length - 1] == target);
+    }
+
+    // Highlights this path
+    public void HighlightPath(bool toHighlight)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            if (toHighlight)
+            {
+                elements[i].PathHighlight((i) == (length - 1));
+            }
+            else
+            {
+                elements[i].HideHighlight();
+            }
+        }
+    }
+
     // Prints the path
     public void PrintPath()
     {
@@ -216,6 +238,7 @@ public class Pathfinding : MonoBehaviour
     {
         movePath = path;
         moving = true;
+        path.HighlightPath(true);
         pathIndex = 0;
     }
 
@@ -234,6 +257,7 @@ public class Pathfinding : MonoBehaviour
                 {
                     moving = false;
                     transform.forward = new Vector3(direction.x, 0.0f, direction.y);
+                    movePath.HighlightPath(false);
                     SetGrid();
                     GameObject.Find("GameManager").GetComponent<TurnManager>().NextTurn();
                     return;

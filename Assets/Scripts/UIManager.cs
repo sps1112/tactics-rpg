@@ -13,6 +13,8 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI posText; // Position UI Reference
 
+    public TextMeshProUGUI turnCountText; // Turn Count UI Reference
+
     public TextMeshProUGUI turnText; // Turn UI Reference
 
     void Start()
@@ -39,8 +41,9 @@ public class UIManager : MonoBehaviour
     }
 
     // Sets the Turn UI
-    public void SetTurnUI(TurnType type)
+    public void SetTurnUI(TurnType type, int turnCounter)
     {
+        turnCountText.text = "TURN: " + turnCounter.ToString();
         turnText.text = (type == TurnType.PLAYER) ? ("Player Turn") : ("Enemy Turn");
     }
 }

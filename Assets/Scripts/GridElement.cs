@@ -33,7 +33,7 @@ public class GridElement : MonoBehaviour
 
     public int index = 0; // Index in the Heap
 
-    private Renderer highlight; // Reference to the grid highlight material
+    private Material highlight; // Reference to the grid highlight material
 
     public Color normalHColor; // Highlight color for normal grids
 
@@ -41,9 +41,13 @@ public class GridElement : MonoBehaviour
 
     public Color hiddenHColor; // Highlight color when not hovering
 
+    public Color pathHColor; // Highlight color for grids on a path
+
+    public Color targetHColor; // Highlight color for target grid in a path
+
     void Start()
     {
-        highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>();
+        highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
     }
 
     // Sets the state of the Grid Element
@@ -103,13 +107,19 @@ public class GridElement : MonoBehaviour
     // Highlights the current grid
     public void ShowHighlight()
     {
-        highlight.material.color = (IsTraversable(true)) ? (normalHColor) : (blockedHColor);
+        highlight.color = (IsTraversable(true)) ? (normalHColor) : (blockedHColor);
     }
 
     // Removes highlight from the grid
     public void HideHighlight()
     {
-        highlight.material.color = hiddenHColor;
+        highlight.color = hiddenHColor;
+    }
+
+    // Highlights grid along a path
+    public void PathHighlight(bool isTarget)
+    {
+        highlight.color = (isTarget) ? (targetHColor) : (pathHColor);
     }
 
     // Prints the details of the current grid 

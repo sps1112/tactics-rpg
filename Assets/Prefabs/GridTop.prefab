@@ -122,6 +122,8 @@ MonoBehaviour:
   normalHColor: {r: 0, g: 1, b: 0.29411766, a: 0.39215687}
   blockedHColor: {r: 1, g: 0.19607843, b: 0, a: 0.39215687}
   hiddenHColor: {r: 1, g: 1, b: 1, a: 0}
+  pathHColor: {r: 1, g: 1, b: 1, a: 0.39215687}
+  targetHColor: {r: 1, g: 1, b: 0, a: 0.39215687}
 --- !u!1 &5860477270344834120
 GameObject:
   m_ObjectHideFlags: 0

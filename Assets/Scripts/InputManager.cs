@@ -8,32 +8,19 @@ public class InputManager : MonoBehaviour
 
     private TurnManager turnManager; // Turn Manager reference
 
-    public GameObject player; // Player reference
-
-    private Pathfinding playerPath; // Player pathfinding reference
-
-    public GameObject enemy; // Enemy reference
-
-    private Pathfinding enemyPath; // Enemy pathfinding reference
-
     private GridElement currentGrid = null; // Reference to the last grid 
 
     void Start()
     {
         ui = GetComponent<UIManager>();
         turnManager = GetComponent<TurnManager>();
-        ui.SetTurnUI(turnManager.turn);
-        playerPath = player.GetComponent<Pathfinding>();
-        playerPath.SetGrid();
-        enemyPath = enemy.GetComponent<Pathfinding>();
-        enemyPath.SetGrid();
+        ui.SetTurnUI(turnManager.turn, 1);
     }
 
     void FixedUpdate()
     {
-        if (turnManager.turn == TurnType.PLAYER && !playerPath.moving)
+        if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
         {
-
             Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
             // Hovering over a Grid Element
             if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
@@ -74,7 +61,7 @@ public class InputManager : MonoBehaviour
     void Update()
     {
         // Player's Turn
-        if (turnManager.turn == TurnType.PLAYER && !playerPath.moving)
+        if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -84,45 +71,16 @@ public class InputManager : MonoBehaviour
                     GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
                     if (element.IsTraversable(true))
                     {
-                        Path path = playerPath.GetPath(element);
-                        playerPath.MoveViaPath(path);
+                        turnManager.MovePlayer(element);
                     }
                 }
             }
         }
 
         // Enemy's Turn
-        if (turnManager.turn == TurnType.ENEMY && !enemyPath.moving)
+        if (turnManager.turn == TurnType.ENEMY && !turnManager.isEnemyMoving())
         {
-            GridElement playerGrid = playerPath.GetGrid();
-            GridElement enemyGrid = enemyPath.GetGrid();
-            int minLen = int.MaxValue;
-            int minDist = int.MaxValue;
-            GridElement target = null;
-            foreach (GridElement neighbour in playerGrid.neighbours)
-            {
-                if (neighbour.IsTraversable(false))
-                {
-                    Path nPath = enemyPath.GetPath(neighbour);
-                    int pDist = nPath.GetPathDistance() + enemyGrid.GetDistance(nPath.elements[0]);
-                    if (nPath.length < minLen)
-                    {
-                        minLen = nPath.length;
-                        minDist = pDist;
-                        target = neighbour;
-                    }
-                    else if (nPath.length == minLen)
-                    {
-                        if (pDist < minDist)
-                        {
-                            minDist = pDist;
-                            target = neighbour;
-                        }
-                    }
-                }
-            }
-            Path path = enemyPath.GetPath(target);
-            enemyPath.MoveViaPath(path);
+            turnManager.MoveEnemy();
         }
     }
 }
