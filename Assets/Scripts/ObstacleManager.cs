@@ -6,6 +6,8 @@ public class ObstacleManager : MonoBehaviour
 {
     public ObstacleLayout layout; // Layout Object Reference
 
+    public float obstacleHeightOffset = 0.475f; // Offset for spawning the obstacles
+
     public List<GameObject> obstacles; // List of obstacles spawned
 
     private bool obstaclesActive = false; // Have the obstacles been generated
@@ -59,7 +61,7 @@ public class ObstacleManager : MonoBehaviour
                             float zPos = grid.gridOrigin.position.z + i * 1.0f;
                             if (grid.GetElement((int)xPos, (int)zPos) != null)
                             {
-                                float yPos = grid.GetElement((int)xPos, (int)zPos).transform.position.y + 0.65f;
+                                float yPos = grid.GetElement((int)xPos, (int)zPos).transform.position.y + obstacleHeightOffset;
                                 GameObject obs = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
                                 grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
                                 obstacles.Add(obs);
