@@ -240,7 +240,20 @@ public class Pathfinding : MonoBehaviour
         moving = true;
         path.HighlightPath(true);
         pathIndex = 0;
+        StartCoroutine("RotateToTarget", movePath.elements[pathIndex].transform.position);
     }
+
+    // Coroutine to rotate to given target
+    public IEnumerator RotateToTarget(Vector3 target)
+    {
+        Vector3 finalDir = CustomMath.GetDirectionTo(GetGrid().transform.position, target, true);
+        while (Mathf.Abs(Vector3.Angle(transform.forward, finalDir)) >= 0.5f)
+        {
+            transform.forward = Vector3.RotateTowards(transform.forward, finalDir, rotateSpeed * Time.deltaTime, 0.0f);
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+    }
+
 
     void Update()
     {
@@ -248,19 +261,22 @@ public class Pathfinding : MonoBehaviour
         {
             Vector2 displacement = movePath.elements[pathIndex].pos - new Vector2(transform.position.x, transform.position.z);
             Vector2 direction = displacement.normalized;
-            transform.forward = Vector3.RotateTowards(transform.forward, new Vector3(direction.x, 0.0f, direction.y), rotateSpeed, 0.0f);
             float distance = displacement.magnitude;
             if (distance < minDistance)
             {
                 pathIndex++;
+                StopCoroutine("RotateToTarget");
                 if (pathIndex >= movePath.length)
                 {
                     moving = false;
-                    transform.forward = new Vector3(direction.x, 0.0f, direction.y);
                     movePath.HighlightPath(false);
                     SetGrid();
                     GameObject.Find("GameManager").GetComponent<TurnManager>().NextTurn();
                     return;
+                }
+                else
+                {
+                    StartCoroutine("RotateToTarget", movePath.elements[pathIndex].transform.position);
                 }
             }
             else

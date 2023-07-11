@@ -275,5 +275,5 @@ MonoBehaviour:
   maxYDiff: 0.65
   minDistJump: 0.8
   moveSpeed: 3.5
-  rotateSpeed: 0.075
+  rotateSpeed: 30
   currentGrid: {fileID: 0}

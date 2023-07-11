@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public GameObject target; // Current Target for the camera
+    private GameObject target; // Current Target for the camera
 
-    public bool isTargetMoving; // Whether the target is currently moving (cannot drag while moving)
+    private bool isTargetMoving; // Whether the target is currently moving (cannot drag while moving)
 
     public Vector3 offset; // Offset to keep when snapped to target
 
@@ -14,11 +14,11 @@ public class CameraFollow : MonoBehaviour
 
     public float dragFactor = 5.0f; // Speed factor for dragging camera
 
-    public bool toSnap = true; // Whether to snap to target
+    private bool toSnap = true; // Whether to snap to target
 
-    public bool toDrag = false; // Whether to drag the camera
+    private bool toDrag = false; // Whether to drag the camera
 
-    public Vector3 origin; // Origin wrt dragging
+    private Vector3 origin; // Origin wrt dragging
 
     // Sets the target for the camera to snap to
     public void SetTarget(GameObject target_)

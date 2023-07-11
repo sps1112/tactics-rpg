@@ -54,6 +54,8 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
+            enemyPath.StopCoroutine("RotateToTarget");
+            enemyPath.StartCoroutine("RotateToTarget", playerGrid.transform.position);
             turn = TurnType.PLAYER;
             Camera.main.GetComponent<CameraFollow>().SetTarget(player);
             Camera.main.GetComponent<CameraFollow>().SetMotion(false);
