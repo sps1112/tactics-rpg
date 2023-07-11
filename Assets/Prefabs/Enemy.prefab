@@ -61,15 +61,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2404215211146565, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
       propertyPath: m_Name
-      value: Other
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 2404215211146565, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 1197497684467885328, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 888369a3717b8ee4c90ddd95083ec14c, type: 2}
     - target: {fileID: 3240543967563140613, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
       propertyPath: isPlayer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3768738418982907740, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: -6478536213147159724, guid: 77d68c01daa893645b9c609bebc70aaa, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
