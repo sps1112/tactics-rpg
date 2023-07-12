@@ -185,10 +185,17 @@ public class TurnManager : MonoBehaviour
     public void MovePlayer(GridElement target)
     {
         Path path = playerPath.GetPath(target);
-        playerGrid.PathHighlight(false);
-        Camera.main.GetComponent<CameraFollow>().SetTarget(player);
-        Camera.main.GetComponent<CameraFollow>().SetMotion(true);
-        playerPath.MoveViaPath(path);
+        if (path.IsCompletePath(target))
+        {
+            playerGrid.PathHighlight(false);
+            Camera.main.GetComponent<CameraFollow>().SetTarget(player);
+            Camera.main.GetComponent<CameraFollow>().SetMotion(true);
+            playerPath.MoveViaPath(path);
+        }
+        else
+        {
+            ui.ShowHintTemp("CANNOT TRAVEL TO TARGET GRID!", 0.75f);
+        }
     }
 
     // Moves the enemy to a player grid

@@ -207,7 +207,6 @@ public class Pathfinding : MonoBehaviour
             // Check if no path exists
             if (openList.count == 0)
             {
-                Debug.Log("No Path");
                 target = closestGrid;
                 break;
             }

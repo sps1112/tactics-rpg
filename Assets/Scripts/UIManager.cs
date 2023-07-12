@@ -75,4 +75,24 @@ public class UIManager : MonoBehaviour
         hintText.text = "";
         hintUI.SetActive(false);
     }
+
+    // Keeps showing the hint on the screen for a small time
+    public void ShowHintTemp(string text, float time)
+    {
+        StopCoroutine("ShowHint");
+        ShowHintText(text);
+        StartCoroutine("ShowHint", time);
+    }
+
+    // Turns off the hint after a time
+    IEnumerator ShowHint(float timeLimit)
+    {
+        float timer = 0.0f;
+        while (timer <= timeLimit)
+        {
+            timer += Time.deltaTime;
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        HideHint();
+    }
 }
