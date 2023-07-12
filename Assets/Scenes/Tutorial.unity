@@ -29364,7 +29364,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turn: 0
   turnCounter: 0
-  turnTimerThreshold: 4
+  turnTimerThreshold: 1
   turnQueue: []
   queueSize: 7
   turnPortaits:
