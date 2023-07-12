@@ -55,15 +55,16 @@ public class ObstacleTool : EditorWindow
                 asset.obstacle = (GameObject)EditorGUILayout.ObjectField("Obstacle", asset.obstacle, typeof(GameObject), true);
                 if (GUILayout.Button("Refresh Layout"))
                 {
-                    asset.layout = new bool[asset.rows * asset.columns];
+                    asset.layout = new int[asset.rows * asset.columns];
                 }
                 GUILayout.Label("Layout:- ");
+                GUILayout.Label("Note the values are:-\n0 => Normal\n1=> Obstacle\n2=> No Action Grid\n3=> Enemy Spawn\n4=> Player Spawn");
                 for (int i = 0; i < asset.rows; i++)
                 {
                     GUILayout.BeginHorizontal();
                     for (int j = 0; j < asset.columns; j++)
                     {
-                        asset.layout[(asset.rows - i - 1) * asset.columns + j] = EditorGUILayout.Toggle(asset.layout[(asset.rows - i - 1) * asset.columns + j]);
+                        asset.layout[(asset.rows - i - 1) * asset.columns + j] = EditorGUILayout.IntField(asset.layout[(asset.rows - i - 1) * asset.columns + j]);
                     }
                     GUILayout.EndHorizontal();
                 }

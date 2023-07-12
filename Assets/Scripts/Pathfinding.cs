@@ -97,6 +97,10 @@ public class Pathfinding : MonoBehaviour
     // Returns the grid which the agent is currently upon
     public GridElement GetGrid()
     {
+        if (spawner == null)
+        {
+            spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
+        }
         return spawner.GetElement(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
     }
 
@@ -253,7 +257,6 @@ public class Pathfinding : MonoBehaviour
             yield return new WaitForSeconds(Time.deltaTime);
         }
     }
-
 
     void Update()
     {

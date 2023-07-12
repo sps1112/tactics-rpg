@@ -18,9 +18,12 @@ public class ObstacleManager : MonoBehaviour
     [SerializeField]
     private GameObject obstacleParent = null; // Obstacles Parent reference
 
+    private TurnManager turn = null; // Reference to the Turn Manager
+
     void Start()
     {
         grid = GetComponent<GridSpawner>();
+        turn = GetComponent<TurnManager>();
         GenerateObstacles();
     }
 
@@ -32,9 +35,10 @@ public class ObstacleManager : MonoBehaviour
             if (obstacles.Count <= 0)
             {
                 // For Obstacle generation via Editor
-                if (grid == null)
+                if (grid == null || turn == null)
                 {
                     grid = GetComponent<GridSpawner>();
+                    turn = GetComponent<TurnManager>();
                 }
                 // Create Parent object if already not created
                 if (obstacleParent == null)
@@ -55,10 +59,10 @@ public class ObstacleManager : MonoBehaviour
                 {
                     for (int j = 0; j < layout.columns; j++)
                     {
-                        if (layout.layout[i * layout.columns + j])
+                        float xPos = grid.gridOrigin.position.x + j * 1.0f;
+                        float zPos = grid.gridOrigin.position.z + i * 1.0f;
+                        if (layout.layout[i * layout.columns + j] == 1) // Obstacle
                         {
-                            float xPos = grid.gridOrigin.position.x + j * 1.0f;
-                            float zPos = grid.gridOrigin.position.z + i * 1.0f;
                             if (grid.GetElement((int)xPos, (int)zPos) != null)
                             {
                                 float yPos = grid.GetElement((int)xPos, (int)zPos).transform.position.y + obstacleHeightOffset;
@@ -67,10 +71,19 @@ public class ObstacleManager : MonoBehaviour
                                 obstacles.Add(obs);
                             }
                         }
+                        else if (layout.layout[i * layout.columns + j] == 3) // Enemy
+                        {
+                            turn.AddSpawnPoint(grid.GetElement((int)xPos, (int)zPos), true);
+                        }
+                        else if (layout.layout[i * layout.columns + j] == 4) // Player
+                        {
+                            turn.AddSpawnPoint(grid.GetElement((int)xPos, (int)zPos), false);
+                        }
                     }
                 }
             }
             obstaclesActive = true;
+            turn.GenerateEnemies();
         }
     }
 

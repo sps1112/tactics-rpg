@@ -11,5 +11,5 @@ public class ObstacleLayout : ScriptableObject
 
     public GameObject obstacle; // Obstacle to place at grid points
 
-    public bool[] layout; // Grid layout on where to place obstacles
+    public int[] layout; // Grid layout on where to define states of each grid
 }

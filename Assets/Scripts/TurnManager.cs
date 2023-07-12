@@ -17,17 +17,25 @@ public class TurnManager : MonoBehaviour
 
     private int turnCounter = 1; // Count for the turns+
 
+    public List<GridElement> enemySpawnPoints = new List<GridElement>(); // Spawn points where enemy can spawn
+
+    public List<GridElement> playerSpawnPoints = new List<GridElement>(); // Spawn points where player can spawn
+
+    public GameObject enemyPrefab; // Reference to the enemy prefab for generating enemies
+
+    public GameObject playerPrefab; // Reference to the player prefab for generating players
+
     public GameObject player; // Player reference
 
-    private Pathfinding playerPath; // Player pathfinding reference
+    public Pathfinding playerPath; // Player pathfinding reference
 
-    private GridElement playerGrid; // Reference to the last grid occupied by player
+    public GridElement playerGrid; // Reference to the last grid occupied by player
 
-    public GameObject enemy; // Enemy reference
+    public GameObject enemy = null; // Enemy reference
 
-    private Pathfinding enemyPath; // Enemy pathfinding reference
+    public Pathfinding enemyPath; // Enemy pathfinding reference
 
-    private GridElement enemyGrid; // Reference to the last grid occupied by enemy
+    public GridElement enemyGrid; // Reference to the last grid occupied by enemy
 
     void Start()
     {
@@ -36,10 +44,42 @@ public class TurnManager : MonoBehaviour
         playerPath = player.GetComponent<Pathfinding>();
         playerPath.SetGrid();
         playerGrid = playerPath.GetGrid();
-        enemyPath = enemy.GetComponent<Pathfinding>();
-        enemyPath.SetGrid();
-        enemyGrid = enemyPath.GetGrid();
         Camera.main.GetComponent<CameraFollow>().SetTarget(player);
+    }
+
+    // Adds spawn point for enemy and players to spawn to
+    public void AddSpawnPoint(GridElement element, bool isEnemy)
+    {
+        if (isEnemy)
+        {
+            if (!enemySpawnPoints.Contains(element))
+            {
+                enemySpawnPoints.Add(element);
+            }
+        }
+        else
+        {
+            if (!playerSpawnPoints.Contains(element))
+            {
+                playerSpawnPoints.Add(element);
+            }
+        }
+    }
+
+    // Generates enemies on the possible point points
+    public void GenerateEnemies()
+    {
+        if (enemy == null)
+        {
+            int index = Random.Range(0, enemySpawnPoints.Count);
+            GridElement spawnGrid = enemySpawnPoints[index];
+            enemy = Instantiate(enemyPrefab,
+                                    spawnGrid.transform.position + Vector3.up * enemyPrefab.GetComponent<Pathfinding>().maxYDiff,
+                                    Quaternion.identity);
+            enemyPath = enemy.GetComponent<Pathfinding>();
+            enemyPath.SetGrid();
+            enemyGrid = enemyPath.GetGrid();
+        }
     }
 
     // Starts the next turn

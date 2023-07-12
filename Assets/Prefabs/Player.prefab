@@ -81,7 +81,7 @@ MonoBehaviour:
   jumpSpeed: 0.1
   maxYDiff: 0.575
   minDistJump: 0.8
-  moveSpeed: 3
+  moveSpeed: 4
   rotateSpeed: 30
   currentGrid: {fileID: 0}
 --- !u!1001 &3431213331980940255
