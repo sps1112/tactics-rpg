@@ -65,6 +65,8 @@ public class Path
 
 public class Pathfinding : MonoBehaviour
 {
+    public Character character; // Reference to the character data
+
     private GridSpawner spawner = null; // Reference to the Grid Spawner
 
     public bool isPlayer = true; // Whether agent is Player or Enemy
@@ -77,11 +79,11 @@ public class Pathfinding : MonoBehaviour
 
     public float minDistance = 0.05f; // Minimum Distance before stopping 
 
-    public float jumpSpeed = 0.025f;
+    public float jumpSpeed = 0.025f; // Speed used for jumping 
 
-    public float maxYDiff = 0.65f;
+    public float maxYDiff = 0.65f; // Maximum difference to maintain with grid block while jumping
 
-    public float minDistJump = 0.35f;
+    public float minDistJump = 0.35f; // Minimum distance from a block before starting jumping
 
     public float moveSpeed = 7.5f; // Movement Speed while moving
 

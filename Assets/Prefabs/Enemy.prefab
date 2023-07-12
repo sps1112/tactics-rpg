@@ -75,6 +75,10 @@ PrefabInstance:
       propertyPath: isPlayer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3240543967563140613, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
+      propertyPath: character
+      value: 
+      objectReference: {fileID: 11400000, guid: f82b76948e89c9240b5c74e402501e1f, type: 2}
     - target: {fileID: 3768738418982907740, guid: bf9a820b0785ca34c8361b55b9976183, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 

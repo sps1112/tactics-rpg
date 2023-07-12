@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // Defines the types of turn availables
 public enum TurnType
 {
+    NONE, // No Turn
     PLAYER, // Player's Turn
     ENEMY, // Enemy's Turn
 }
@@ -13,9 +15,17 @@ public class TurnManager : MonoBehaviour
 {
     private UIManager ui = null; // UI Manager reference
 
-    public TurnType turn; // Current Turn Type
+    public TurnType turn = TurnType.NONE; // Current Turn Type
 
-    private int turnCounter = 1; // Count for the turns+
+    public int turnCounter = 0; // Count for the turns+
+
+    public float turnTimerThreshold = 1.0f; // Time taken for the turn timer to fill for a character
+
+    public List<GameObject> turnQueue = new List<GameObject>(); // The Turn Order
+
+    public int queueSize = 7; // Size of the queue to maintain
+
+    public Image[] turnPortaits; // Reference to the turn potraits
 
     public List<GridElement> enemySpawnPoints = new List<GridElement>(); // Spawn points where enemy can spawn
 
@@ -38,6 +48,10 @@ public class TurnManager : MonoBehaviour
     public Pathfinding enemyPath; // Enemy pathfinding reference
 
     public GridElement enemyGrid; // Reference to the last grid occupied by enemy
+
+    public float playerTimer = 0; // Timer for the player
+
+    public float enemyTimer = 0; // Timer for the enemy
 
     void Start()
     {
@@ -112,10 +126,8 @@ public class TurnManager : MonoBehaviour
             playerPath = player.GetComponent<Pathfinding>();
             playerPath.SetGrid();
             playerGrid = playerPath.GetGrid();
-            Camera.main.GetComponent<CameraFollow>().SetTarget(player);
 
-            turn = TurnType.PLAYER;
-            ui.SetTurnUI(turn, turnCounter);
+            StartCoroutine("StartGame");
             gameStarted = true;
         }
     }
@@ -124,13 +136,12 @@ public class TurnManager : MonoBehaviour
     public void NextTurn()
     {
         playerGrid.HideHighlight();
+        playerGrid = playerPath.GetGrid();
         enemyGrid.HideHighlight();
-        if (turn == TurnType.PLAYER)
-        {
-            turn = TurnType.ENEMY;
-            Camera.main.GetComponent<CameraFollow>().SetTarget(enemy);
-        }
-        else
+        enemyGrid = enemyPath.GetGrid();
+        GameObject current = turnQueue[0];
+        turnQueue.RemoveAt(0);
+        if (current == player)
         {
             enemyPath.StopCoroutine("RotateToTarget");
             enemyPath.StartCoroutine("RotateToTarget", playerGrid.transform.position);
@@ -138,8 +149,24 @@ public class TurnManager : MonoBehaviour
             Camera.main.GetComponent<CameraFollow>().SetTarget(player);
             Camera.main.GetComponent<CameraFollow>().SetMotion(false);
         }
+        else
+        {
+            turn = TurnType.ENEMY;
+            Camera.main.GetComponent<CameraFollow>().SetTarget(enemy);
+        }
         turnCounter++;
         ui.SetTurnUI(turn, turnCounter);
+        for (int i = 0; i < 6; i++)
+        {
+            if (i == 0)
+            {
+                turnPortaits[0].sprite = current.GetComponent<Pathfinding>().character.potrait;
+            }
+            else
+            {
+                turnPortaits[i].sprite = turnQueue[i - 1].GetComponent<Pathfinding>().character.potrait;
+            }
+        }
     }
 
     public bool isPlayerMoving()
@@ -163,8 +190,6 @@ public class TurnManager : MonoBehaviour
 
     public void MoveEnemy()
     {
-        playerGrid = playerPath.GetGrid();
-        enemyGrid = enemyPath.GetGrid();
         List<Path> completePaths = new List<Path>();
         int minLenC = int.MaxValue;
         int minDistC = int.MaxValue;
@@ -225,5 +250,39 @@ public class TurnManager : MonoBehaviour
         }
         enemyGrid.PathHighlight(false);
         enemyPath.MoveViaPath(path);
+    }
+
+    IEnumerator StartGame()
+    {
+        ui.ShowHintText("Starting Game...");
+        gameStarted = true;
+        while (turnQueue.Count < queueSize)
+        {
+            yield return new WaitForSeconds(Time.deltaTime * 10.0f);
+        }
+        ui.HideHint();
+        NextTurn();
+    }
+
+    void Update()
+    {
+        if (gameStarted)
+        {
+            if (turnQueue.Count < queueSize)
+            {
+                playerTimer += playerPath.character.speed * Time.deltaTime * 10.0f;
+                if (playerTimer >= turnTimerThreshold)
+                {
+                    turnQueue.Add(player);
+                    playerTimer -= turnTimerThreshold;
+                }
+                enemyTimer += enemyPath.character.speed * Time.deltaTime * 10.0f;
+                if (enemyTimer >= turnTimerThreshold)
+                {
+                    turnQueue.Add(enemy);
+                    enemyTimer -= turnTimerThreshold;
+                }
+            }
+        }
     }
 }
