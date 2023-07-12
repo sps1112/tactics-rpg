@@ -42,6 +42,8 @@ public class TurnManager : MonoBehaviour
     void Start()
     {
         ui = GetComponent<UIManager>();
+        GenerateEnemies();
+        GeneratePlayers();
     }
 
     // Adds spawn point for enemy and players to spawn to

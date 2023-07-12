@@ -33,7 +33,7 @@ public class GridElement : MonoBehaviour
 
     public int index = 0; // Index in the Heap
 
-    private Material highlight; // Reference to the grid highlight material
+    private Material highlight = null; // Reference to the grid highlight material
 
     public Color normalHColor; // Highlight color for normal grids
 
@@ -127,6 +127,10 @@ public class GridElement : MonoBehaviour
     // Highlights the grid to show it can spawn player
     public void SpawnHighlight()
     {
+        if (highlight == null)
+        {
+            highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        }
         highlight.color = spawnColor;
     }
 
