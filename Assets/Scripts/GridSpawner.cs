@@ -42,15 +42,15 @@ public class GridSpawner : MonoBehaviour
                         Vector3 gridPos = new Vector3(xPos, yPos, zPos);
                         GameObject gridParent = Instantiate(empty, gridPos, Quaternion.identity, gridOrigin.transform);
                         gridParent.name = "Grid " + (i + 1).ToString() + "X" + (j + 1).ToString();
-                        Instantiate(layout.bottom, gridPos + Vector3.up * heightOffsets[0], Quaternion.identity, gridParent.transform);
                         int height = layout.layout[i * layout.columns + j];
-                        Vector3 blockPos = gridPos + Vector3.up * heightOffsets[1];
                         if (height <= 0)
                         {
                             gridElements.Add(empty);
                         }
                         else
                         {
+                            Instantiate(layout.bottom, gridPos + Vector3.up * heightOffsets[0], Quaternion.identity, gridParent.transform);
+                            Vector3 blockPos = gridPos + Vector3.up * heightOffsets[1];
                             for (int k = 1; k <= height; k++)
                             {
                                 if (k == height)
