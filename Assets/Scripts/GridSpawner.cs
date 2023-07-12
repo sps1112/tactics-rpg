@@ -113,10 +113,7 @@ public class GridSpawner : MonoBehaviour
                                         {
                                             continue;
                                         }
-                                        if (Mathf.Abs(neighbour.height - element.height) <= 1)
-                                        {
-                                            element.neighbours.Add(neighbour);
-                                        }
+                                        element.neighbours.Add(neighbour);
                                     }
                                 }
                             }

@@ -10,4 +10,6 @@ public class Character : ScriptableObject
     public Sprite potrait; // Potrait of the the character
 
     public int speed; // Speed of the character
+
+    public int jump; // How high can characters perform actions for adjacent grids 
 }

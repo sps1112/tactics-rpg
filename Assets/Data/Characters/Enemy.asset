@@ -15,3 +15,4 @@ MonoBehaviour:
   characterName: Jack
   potrait: {fileID: 21300000, guid: cae252b93a4cec349bdf3d8be2d756d6, type: 3}
   speed: 3
+  jump: 2

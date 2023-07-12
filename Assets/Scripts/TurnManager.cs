@@ -169,16 +169,19 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    // Checks if the player is moving
     public bool isPlayerMoving()
     {
         return playerPath.moving;
     }
 
+    // Checks if the enemy is moving
     public bool isEnemyMoving()
     {
         return enemyPath.moving;
     }
 
+    // Moves the player to the target grid
     public void MovePlayer(GridElement target)
     {
         Path path = playerPath.GetPath(target);
@@ -188,6 +191,7 @@ public class TurnManager : MonoBehaviour
         playerPath.MoveViaPath(path);
     }
 
+    // Moves the enemy to a player grid
     public void MoveEnemy()
     {
         List<Path> completePaths = new List<Path>();
@@ -252,6 +256,7 @@ public class TurnManager : MonoBehaviour
         enemyPath.MoveViaPath(path);
     }
 
+    // Starts the game getting the turn order
     IEnumerator StartGame()
     {
         ui.ShowHintText("Starting Game...");

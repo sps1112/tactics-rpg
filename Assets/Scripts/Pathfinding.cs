@@ -174,30 +174,32 @@ public class Pathfinding : MonoBehaviour
                 GridElement neighbour = current.neighbours[i];
                 if (neighbour.IsTraversable(isPlayer) && !closedList.HasElement(neighbour))
                 {
-                    int moveCost = current.gCost + current.GetDistance(neighbour);
-                    if (!openList.HasElement(neighbour) || moveCost < neighbour.gCost)
+                    if (Mathf.Abs(current.height - neighbour.height) <= character.jump)
                     {
-                        neighbour.gCost = moveCost;
-                        neighbour.hCost = neighbour.GetDistance(target);
-                        neighbour.parent = current;
-                        if (!openList.HasElement(neighbour))
+                        int moveCost = current.gCost + current.GetDistance(neighbour);
+                        if (!openList.HasElement(neighbour) || moveCost < neighbour.gCost)
                         {
-                            openList.AddToHeap(neighbour);
-                            if (!allGrids.Contains(neighbour))
+                            neighbour.gCost = moveCost;
+                            neighbour.hCost = neighbour.GetDistance(target);
+                            neighbour.parent = current;
+                            if (!openList.HasElement(neighbour))
                             {
-                                allGrids.Add(neighbour);
+                                openList.AddToHeap(neighbour);
+                                if (!allGrids.Contains(neighbour))
+                                {
+                                    allGrids.Add(neighbour);
+                                }
+                                // Refresh Closest Grid
+                                if (neighbour.hCost < closestDist)
+                                {
+                                    closestDist = neighbour.hCost;
+                                    closestGrid = neighbour;
+                                }
                             }
-
-                            // Refresh Closest Grid
-                            if (neighbour.hCost < closestDist)
+                            else
                             {
-                                closestDist = neighbour.hCost;
-                                closestGrid = neighbour;
+                                openList.UpdateElement(neighbour);
                             }
-                        }
-                        else
-                        {
-                            openList.UpdateElement(neighbour);
                         }
                     }
                 }
