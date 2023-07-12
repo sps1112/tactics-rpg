@@ -27,6 +27,8 @@ public class UIManager : MonoBehaviour
 
     public CharacterUI enemyUI; // Reference to the enemy UI
 
+    public GameObject actionsUI; // Reference to the actions UI
+
     void Start()
     {
         ResetGridElementUI();
@@ -58,6 +60,13 @@ public class UIManager : MonoBehaviour
         gridElementUI.SetActive(false);
     }
 
+    // Sets the state of Actions UI
+    public void SetActionsUI(bool status)
+    {
+        actionsUI.SetActive(status);
+        GetComponent<InputManager>().SetInput(!status);
+    }
+
     // Sets the Turn UI
     public void SetTurnUI(TurnType type, int turnCounter, Character character)
     {
@@ -69,10 +78,12 @@ public class UIManager : MonoBehaviour
             turnText.text = "Player Turn";
             playerUI.gameObject.SetActive(true);
             playerUI.SetCharacter(character);
+            SetActionsUI(true);
         }
         else
         {
             playerUI.gameObject.SetActive(false);
+            SetActionsUI(false);
             turnText.text = "Enemy Turn";
             enemyUI.gameObject.SetActive(true);
             enemyUI.SetCharacter(character);

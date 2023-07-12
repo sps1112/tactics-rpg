@@ -10,10 +10,18 @@ public class InputManager : MonoBehaviour
 
     private GridElement currentGrid = null; // Reference to the last grid 
 
+    public bool canInput = false; // Whether the player can input
+
     void Start()
     {
         ui = GetComponent<UIManager>();
         turnManager = GetComponent<TurnManager>();
+    }
+
+    // Sets the Input state
+    public void SetInput(bool status)
+    {
+        canInput = status;
     }
 
     void FixedUpdate()
@@ -22,6 +30,7 @@ public class InputManager : MonoBehaviour
         {
             if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
             {
+
                 Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
                 // Hovering over a Grid Element
                 if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
@@ -34,9 +43,12 @@ public class InputManager : MonoBehaviour
                         }
                         currentGrid.HideHighlight();
                     }
-                    currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
-                    ui.SetGridElementUI(currentGrid);
-                    currentGrid.ShowHighlight();
+                    if (canInput)
+                    {
+                        currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
+                        ui.SetGridElementUI(currentGrid);
+                        currentGrid.ShowHighlight();
+                    }
                 }
                 else
                 {
@@ -107,16 +119,23 @@ public class InputManager : MonoBehaviour
             // Player's Turn
             if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
             {
-                if (Input.GetMouseButtonDown(0))
+                if (canInput)
                 {
-                    Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+                    if (Input.GetMouseButtonDown(0))
                     {
-                        GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
-                        if (element.IsTraversable(true))
+                        Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+                        if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
                         {
-                            turnManager.MovePlayer(element);
+                            GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
+                            if (element.IsTraversable(true))
+                            {
+                                turnManager.MovePlayer(element);
+                            }
                         }
+                    }
+                    if (Input.GetMouseButtonDown(1))
+                    {
+                        GetComponent<UIManager>().SetActionsUI(true);
                     }
                 }
             }
