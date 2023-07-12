@@ -11,7 +11,7 @@ public enum TurnType
 
 public class TurnManager : MonoBehaviour
 {
-    private UIManager ui; // UI Manager reference
+    private UIManager ui = null; // UI Manager reference
 
     public TurnType turn; // Current Turn Type
 
@@ -24,6 +24,8 @@ public class TurnManager : MonoBehaviour
     public GameObject enemyPrefab; // Reference to the enemy prefab for generating enemies
 
     public GameObject playerPrefab; // Reference to the player prefab for generating players
+
+    public bool gameStarted = false; // Whether the game has started
 
     public GameObject player; // Player reference
 
@@ -40,11 +42,6 @@ public class TurnManager : MonoBehaviour
     void Start()
     {
         ui = GetComponent<UIManager>();
-        turn = TurnType.PLAYER;
-        playerPath = player.GetComponent<Pathfinding>();
-        playerPath.SetGrid();
-        playerGrid = playerPath.GetGrid();
-        Camera.main.GetComponent<CameraFollow>().SetTarget(player);
     }
 
     // Adds spawn point for enemy and players to spawn to
@@ -79,6 +76,45 @@ public class TurnManager : MonoBehaviour
             enemyPath = enemy.GetComponent<Pathfinding>();
             enemyPath.SetGrid();
             enemyGrid = enemyPath.GetGrid();
+        }
+    }
+
+    // Generates player on grid
+    public void GeneratePlayers()
+    {
+        if (ui == null)
+        {
+            ui = GetComponent<UIManager>();
+        }
+        ui.ShowHintText("Left Click on any of the highlighted grids to spawn the player...");
+        foreach (GridElement element in playerSpawnPoints)
+        {
+            element.SpawnHighlight();
+        }
+    }
+
+    // Spawns a new player at given grid
+    public void SpawnNewPlayer(GridElement element)
+    {
+        if (playerSpawnPoints.Contains(element))
+        {
+            foreach (GridElement grid in playerSpawnPoints)
+            {
+                grid.HideHighlight();
+            }
+            ui.HideHint();
+
+            player = Instantiate(playerPrefab,
+                        element.transform.position + Vector3.up * playerPrefab.GetComponent<Pathfinding>().maxYDiff,
+                        Quaternion.identity);
+            playerPath = player.GetComponent<Pathfinding>();
+            playerPath.SetGrid();
+            playerGrid = playerPath.GetGrid();
+            Camera.main.GetComponent<CameraFollow>().SetTarget(player);
+
+            turn = TurnType.PLAYER;
+            ui.SetTurnUI(turn, turnCounter);
+            gameStarted = true;
         }
     }
 

@@ -45,6 +45,8 @@ public class GridElement : MonoBehaviour
 
     public Color targetHColor; // Highlight color for target grid in a path
 
+    public Color spawnColor; // Highlight color for grids to spawn player
+
     void Start()
     {
         highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
@@ -120,6 +122,12 @@ public class GridElement : MonoBehaviour
     public void PathHighlight(bool isTarget)
     {
         highlight.color = (isTarget) ? (targetHColor) : (pathHColor);
+    }
+
+    // Highlights the grid to show it can spawn player
+    public void SpawnHighlight()
+    {
+        highlight.color = spawnColor;
     }
 
     // Prints the details of the current grid 

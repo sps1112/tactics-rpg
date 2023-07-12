@@ -84,6 +84,7 @@ public class ObstacleManager : MonoBehaviour
             }
             obstaclesActive = true;
             turn.GenerateEnemies();
+            turn.GeneratePlayers();
         }
     }
 

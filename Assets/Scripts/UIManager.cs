@@ -5,7 +5,7 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    public GameObject gridElementUI; // Reference to the parent grid element object
+    public GameObject gridElementUI; // Reference to the Grid UI
 
     public TextMeshProUGUI rowText; // Row UI Reference
 
@@ -13,13 +13,27 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI posText; // Position UI Reference
 
+    public GameObject turnUI; // Reference to the Turn UI
+
     public TextMeshProUGUI turnCountText; // Turn Count UI Reference
 
-    public TextMeshProUGUI turnText; // Turn UI Reference
+    public TextMeshProUGUI turnText; // Turn Text UI Reference
+
+    public GameObject hintUI; // Reference to the Hint UI
+
+    public TextMeshProUGUI hintText; // Hint UI Reference
 
     void Start()
     {
         ResetGridElementUI();
+    }
+
+    // Hides all the UI Elements
+    public void HideUI()
+    {
+        gridElementUI.SetActive(false);
+        turnUI.SetActive(false);
+        hintUI.SetActive(false);
     }
 
     // Sets the Grid UI
@@ -43,7 +57,22 @@ public class UIManager : MonoBehaviour
     // Sets the Turn UI
     public void SetTurnUI(TurnType type, int turnCounter)
     {
+        turnUI.SetActive(true);
         turnCountText.text = "TURN: " + turnCounter.ToString();
         turnText.text = (type == TurnType.PLAYER) ? ("Player Turn") : ("Enemy Turn");
+    }
+
+    // Shows the hint UI with given text
+    public void ShowHintText(string text)
+    {
+        hintUI.SetActive(true);
+        hintText.text = text;
+    }
+
+    // Hides the hint UI
+    public void HideHint()
+    {
+        hintText.text = "";
+        hintUI.SetActive(false);
     }
 }

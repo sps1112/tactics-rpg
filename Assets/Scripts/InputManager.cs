@@ -14,12 +14,51 @@ public class InputManager : MonoBehaviour
     {
         ui = GetComponent<UIManager>();
         turnManager = GetComponent<TurnManager>();
-        ui.SetTurnUI(turnManager.turn, 1);
     }
 
     void FixedUpdate()
     {
-        if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
+        if (turnManager.gameStarted)
+        {
+            if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
+            {
+                Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // Hovering over a Grid Element
+                if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+                {
+                    if (currentGrid != null)
+                    {
+                        if (hit.collider.gameObject.GetComponent<GridElement>() == currentGrid)
+                        {
+                            return;
+                        }
+                        currentGrid.HideHighlight();
+                    }
+                    currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
+                    ui.SetGridElementUI(currentGrid);
+                    currentGrid.ShowHighlight();
+                }
+                else
+                {
+                    if (currentGrid != null)
+                    {
+                        ui.ResetGridElementUI();
+                        currentGrid.HideHighlight();
+                        currentGrid = null;
+                    }
+                }
+            }
+            if (turnManager.turn == TurnType.ENEMY)
+            {
+                if (currentGrid != null)
+                {
+                    ui.ResetGridElementUI();
+                    currentGrid.HideHighlight();
+                    currentGrid = null;
+                }
+            }
+        }
+        else
         {
             Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
             // Hovering over a Grid Element
@@ -31,37 +70,64 @@ public class InputManager : MonoBehaviour
                     {
                         return;
                     }
-                    currentGrid.HideHighlight();
+                    if (turnManager.playerSpawnPoints.Contains(currentGrid))
+                    {
+                        currentGrid.SpawnHighlight();
+                    }
+                    else
+                    {
+                        currentGrid.HideHighlight();
+                    }
                 }
                 currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
-                ui.SetGridElementUI(currentGrid);
                 currentGrid.ShowHighlight();
             }
             else
             {
                 if (currentGrid != null)
                 {
-                    ui.ResetGridElementUI();
-                    currentGrid.HideHighlight();
+                    if (turnManager.playerSpawnPoints.Contains(currentGrid))
+                    {
+                        currentGrid.SpawnHighlight();
+                    }
+                    else
+                    {
+                        currentGrid.HideHighlight();
+                    }
                     currentGrid = null;
                 }
-            }
-        }
-        if (turnManager.turn == TurnType.ENEMY)
-        {
-            if (currentGrid != null)
-            {
-                ui.ResetGridElementUI();
-                currentGrid.HideHighlight();
-                currentGrid = null;
             }
         }
     }
 
     void Update()
     {
-        // Player's Turn
-        if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
+        if (turnManager.gameStarted)
+        {
+            // Player's Turn
+            if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+                    {
+                        GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
+                        if (element.IsTraversable(true))
+                        {
+                            turnManager.MovePlayer(element);
+                        }
+                    }
+                }
+            }
+
+            // Enemy's Turn
+            if (turnManager.turn == TurnType.ENEMY && !turnManager.isEnemyMoving())
+            {
+                turnManager.MoveEnemy();
+            }
+        }
+        else
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -69,18 +135,9 @@ public class InputManager : MonoBehaviour
                 if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
                 {
                     GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
-                    if (element.IsTraversable(true))
-                    {
-                        turnManager.MovePlayer(element);
-                    }
+                    turnManager.SpawnNewPlayer(element);
                 }
             }
-        }
-
-        // Enemy's Turn
-        if (turnManager.turn == TurnType.ENEMY && !turnManager.isEnemyMoving())
-        {
-            turnManager.MoveEnemy();
         }
     }
 }

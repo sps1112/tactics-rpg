@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    private GameObject target; // Current Target for the camera
+    private GameObject target = null; // Current Target for the camera
 
     private bool isTargetMoving; // Whether the target is currently moving (cannot drag while moving)
 
@@ -54,7 +54,10 @@ public class CameraFollow : MonoBehaviour
         }
         if (toSnap)
         {
-            transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed);
+            if (target != null)
+            {
+                transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed);
+            }
         }
         else if (toDrag)
         {
