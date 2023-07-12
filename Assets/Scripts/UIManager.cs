@@ -23,6 +23,10 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI hintText; // Hint UI Reference
 
+    public CharacterUI playerUI; // Reference to the player UI
+
+    public CharacterUI enemyUI; // Reference to the enemy UI
+
     void Start()
     {
         ResetGridElementUI();
@@ -55,11 +59,24 @@ public class UIManager : MonoBehaviour
     }
 
     // Sets the Turn UI
-    public void SetTurnUI(TurnType type, int turnCounter)
+    public void SetTurnUI(TurnType type, int turnCounter, Character character)
     {
         turnUI.SetActive(true);
         turnCountText.text = "TURN: " + turnCounter.ToString();
-        turnText.text = (type == TurnType.PLAYER) ? ("Player Turn") : ("Enemy Turn");
+        if (type == TurnType.PLAYER)
+        {
+            enemyUI.gameObject.SetActive(false);
+            turnText.text = "Player Turn";
+            playerUI.gameObject.SetActive(true);
+            playerUI.SetCharacter(character);
+        }
+        else
+        {
+            playerUI.gameObject.SetActive(false);
+            turnText.text = "Enemy Turn";
+            enemyUI.gameObject.SetActive(true);
+            enemyUI.SetCharacter(character);
+        }
     }
 
     // Shows the hint UI with given text

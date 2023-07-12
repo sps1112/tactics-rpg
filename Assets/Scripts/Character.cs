@@ -12,4 +12,8 @@ public class Character : ScriptableObject
     public int speed; // Speed of the character
 
     public int jump; // How high can characters perform actions for adjacent grids 
+
+    public int hp; // Max HP for the character
+
+    public int actions; // Max actions for the character
 }

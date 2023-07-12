@@ -155,7 +155,7 @@ public class TurnManager : MonoBehaviour
             Camera.main.GetComponent<CameraFollow>().SetTarget(enemy);
         }
         turnCounter++;
-        ui.SetTurnUI(turn, turnCounter);
+        ui.SetTurnUI(turn, turnCounter, current.GetComponent<Pathfinding>().character);
         for (int i = 0; i < 6; i++)
         {
             if (i == 0)

@@ -16,3 +16,5 @@ MonoBehaviour:
   potrait: {fileID: 21300000, guid: d9d3d503802c1344a972a3bf63860c04, type: 3}
   speed: 4
   jump: 2
+  hp: 25
+  actions: 6
