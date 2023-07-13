@@ -378,7 +378,6 @@ public class TurnManager : MonoBehaviour
     // Ends the turn with the player choosing the snap direction
     IEnumerator EndTurn()
     {
-        ui.SetActionsUI(false);
         yield return new WaitForSeconds(Time.deltaTime);
         if (turn == TurnType.PLAYER)
         {
@@ -387,6 +386,7 @@ public class TurnManager : MonoBehaviour
             ui.ResetGridElementUI();
             turn = TurnType.NONE;
             ui.ShowHintText("Use WSAD/Directional Keys to choose a direction to snap to and Enter/Left-Click to end turn...");
+            ui.SetActionsUI(false);
             while (true)
             {
                 if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))

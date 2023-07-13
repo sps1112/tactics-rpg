@@ -315,6 +315,7 @@ public class Pathfinding : MonoBehaviour
             transform.forward = Vector3.RotateTowards(transform.forward, finalDir, rotateSpeed * Time.deltaTime, 0.0f);
             yield return new WaitForSeconds(Time.deltaTime);
         }
+        transform.forward = CustomMath.ClampAlongCardinals(transform.forward);
     }
 
     void Update()

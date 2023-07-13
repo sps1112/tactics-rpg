@@ -27,4 +27,20 @@ public class CustomMath : MonoBehaviour
         target = GetProjectedTarget(origin, target);
         return (target - origin).normalized;
     }
+
+    // Clamps the direction along the 4 cardinal vectors in the XZ plane
+    public static Vector3 ClampAlongCardinals(Vector3 direction)
+    {
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
+        {
+            direction.x = direction.x / Mathf.Abs(direction.x);
+            direction.z = 0.0f;
+        }
+        else
+        {
+            direction.z = direction.z / Mathf.Abs(direction.z);
+            direction.x = 0.0f;
+        }
+        return direction;
+    }
 }

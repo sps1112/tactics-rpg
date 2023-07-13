@@ -107,6 +107,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GridBottom
       objectReference: {fileID: 0}
+    - target: {fileID: 2255774970726223019, guid: a8fec02f412c21e4dbe3695e1327ec17, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2255774970726223031, guid: a8fec02f412c21e4dbe3695e1327ec17, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -125,7 +129,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2255774970726223031, guid: a8fec02f412c21e4dbe3695e1327ec17, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.445
+      value: -0.524
       objectReference: {fileID: 0}
     - target: {fileID: 2255774970726223031, guid: a8fec02f412c21e4dbe3695e1327ec17, type: 3}
       propertyPath: m_LocalPosition.z
