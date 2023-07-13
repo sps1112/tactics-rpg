@@ -61,23 +61,31 @@ public class ObstacleManager : MonoBehaviour
                     {
                         float xPos = grid.gridOrigin.position.x + j * 1.0f;
                         float zPos = grid.gridOrigin.position.z + i * 1.0f;
+                        GridElement currentGrid = grid.GetElement((int)xPos, (int)zPos);
                         if (layout.layout[i * layout.columns + j] == 1) // Obstacle
                         {
-                            if (grid.GetElement((int)xPos, (int)zPos) != null)
+                            if (currentGrid != null)
                             {
-                                float yPos = grid.GetElement((int)xPos, (int)zPos).transform.position.y + obstacleHeightOffset;
+                                float yPos = currentGrid.transform.position.y + obstacleHeightOffset;
                                 GameObject obs = Instantiate(layout.obstacle, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
-                                grid.GetElement((int)xPos, (int)zPos).SetState(GridState.BLOCKED);
+                                currentGrid.SetState(GridState.BLOCKED);
                                 obstacles.Add(obs);
                             }
                         }
+                        else if (layout.layout[i * layout.columns + j] == 2) // No Action Grid
+                        {
+                            float yPos = currentGrid.transform.position.y + grid.heightOffsets[2];
+                            GameObject top = Instantiate(layout.gridNoAction, new Vector3(xPos, yPos, zPos), Quaternion.identity, obstacleParent.transform);
+                            currentGrid.canActOnGrid = false;
+                            obstacles.Add(top);
+                        }
                         else if (layout.layout[i * layout.columns + j] == 3) // Enemy
                         {
-                            turn.AddSpawnPoint(grid.GetElement((int)xPos, (int)zPos), true);
+                            turn.AddSpawnPoint(currentGrid, true);
                         }
                         else if (layout.layout[i * layout.columns + j] == 4) // Player
                         {
-                            turn.AddSpawnPoint(grid.GetElement((int)xPos, (int)zPos), false);
+                            turn.AddSpawnPoint(currentGrid, false);
                         }
                     }
                 }

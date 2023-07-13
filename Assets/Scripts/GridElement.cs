@@ -49,6 +49,8 @@ public class GridElement : MonoBehaviour
 
     public bool isActionGrid = false; // Whether the grid is an action grid
 
+    public bool canActOnGrid = true; // Whether actions can be performed on this grid
+
     void Start()
     {
         highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>().material;

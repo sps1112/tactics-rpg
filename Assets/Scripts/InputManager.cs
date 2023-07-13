@@ -21,6 +21,7 @@ public class InputManager : MonoBehaviour
     // Sets the Input state
     public void SetInput(bool status)
     {
+        HideCurrentHighlight();
         canInput = status;
     }
 

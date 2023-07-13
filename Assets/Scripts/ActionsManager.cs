@@ -19,6 +19,6 @@ public class ActionsManager : MonoBehaviour
     // Allows the player to skip the turn
     public void Skip()
     {
-        GetComponent<TurnManager>().NextTurn();
+        GetComponent<TurnManager>().StartCoroutine("EndTurn");
     }
 }

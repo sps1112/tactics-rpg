@@ -329,8 +329,17 @@ public class TurnManager : MonoBehaviour
     // Starts the attack action for the current character
     public void ShowAttackGrids()
     {
-        playerStats.UseActions(1);
-        CheckTurnStatus();
+        if (playerGrid.canActOnGrid && playerStats.actions >= 1)
+        {
+            ui.SetActionsUI(false);
+            // IMPLEMENTATION HERE LATER
+            playerStats.UseActions(playerStats.actions); // Currently use all remaining actions
+            CheckTurnStatus();
+        }
+        else
+        {
+            ui.ShowHintTemp("CANNOT EXECUTE ACTION ON THIS BLOCK!", 0.75f);
+        }
     }
 
     // Checks if the character has used all their actions
@@ -369,6 +378,8 @@ public class TurnManager : MonoBehaviour
     // Ends the turn with the player choosing the snap direction
     IEnumerator EndTurn()
     {
+        ui.SetActionsUI(false);
+        yield return new WaitForSeconds(Time.deltaTime);
         if (turn == TurnType.PLAYER)
         {
             playerGrid.HideHighlight();

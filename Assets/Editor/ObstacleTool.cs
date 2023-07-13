@@ -53,6 +53,7 @@ public class ObstacleTool : EditorWindow
                 asset.rows = EditorGUILayout.IntField("Rows:- ", asset.rows);
                 asset.columns = EditorGUILayout.IntField("Columns:- ", asset.columns);
                 asset.obstacle = (GameObject)EditorGUILayout.ObjectField("Obstacle", asset.obstacle, typeof(GameObject), true);
+                asset.gridNoAction = (GameObject)EditorGUILayout.ObjectField("Grid No Action", asset.gridNoAction, typeof(GameObject), true);
                 if (GUILayout.Button("Refresh Layout"))
                 {
                     asset.layout = new int[asset.rows * asset.columns];
