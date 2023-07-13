@@ -39,11 +39,15 @@ public class TurnManager : MonoBehaviour
 
     public GameObject player; // Player reference
 
+    public Stats playerStats; // Reference to the player stats
+
     public Pathfinding playerPath; // Player pathfinding reference
 
     public GridElement playerGrid; // Reference to the last grid occupied by player
 
     public GameObject enemy = null; // Enemy reference
+
+    public Stats enemyStats; // Reference to the enemy stats
 
     public Pathfinding enemyPath; // Enemy pathfinding reference
 
@@ -89,6 +93,7 @@ public class TurnManager : MonoBehaviour
             enemy = Instantiate(enemyPrefab,
                                     spawnGrid.transform.position + Vector3.up * enemyPrefab.GetComponent<Pathfinding>().maxYDiff,
                                     Quaternion.identity);
+            enemyStats = enemy.GetComponent<Stats>();
             enemyPath = enemy.GetComponent<Pathfinding>();
             enemyPath.SetGrid();
             enemyGrid = enemyPath.GetGrid();
@@ -127,6 +132,7 @@ public class TurnManager : MonoBehaviour
             player = Instantiate(playerPrefab,
                         element.transform.position + Vector3.up * playerPrefab.GetComponent<Pathfinding>().maxYDiff,
                         Quaternion.identity);
+            playerStats = player.GetComponent<Stats>();
             playerPath = player.GetComponent<Pathfinding>();
             playerPath.SetGrid();
             playerGrid = playerPath.GetGrid();
@@ -158,16 +164,16 @@ public class TurnManager : MonoBehaviour
             Camera.main.GetComponent<CameraFollow>().SetTarget(enemy);
         }
         turnCounter++;
-        ui.SetTurnUI(turn, turnCounter, current.GetComponent<Pathfinding>().character);
+        ui.SetTurnUI(turn, turnCounter, current.GetComponent<Stats>());
         for (int i = 0; i < 6; i++)
         {
             if (i == 0)
             {
-                turnPortaits[0].sprite = current.GetComponent<Pathfinding>().character.potrait;
+                turnPortaits[0].sprite = current.GetComponent<Stats>().character.potrait;
             }
             else
             {
-                turnPortaits[i].sprite = turnQueue[i - 1].GetComponent<Pathfinding>().character.potrait;
+                turnPortaits[i].sprite = turnQueue[i - 1].GetComponent<Stats>().character.potrait;
             }
         }
     }
@@ -214,7 +220,7 @@ public class TurnManager : MonoBehaviour
         {
             if (neighbour.IsTraversable(false))
             {
-                if (Mathf.Abs(playerGrid.height - neighbour.height) <= enemyPath.character.jump)
+                if (Mathf.Abs(playerGrid.height - neighbour.height) <= enemyStats.character.jump)
                 {
                     Path nPath = enemyPath.GetPath(neighbour);
                     int pDist = nPath.GetPathDistance() + enemyGrid.GetDistance(nPath.elements[0]);
@@ -332,13 +338,13 @@ public class TurnManager : MonoBehaviour
         {
             if (turnQueue.Count < queueSize)
             {
-                playerTimer += playerPath.character.speed * Time.deltaTime * 10.0f;
+                playerTimer += playerStats.character.speed * Time.deltaTime * 10.0f;
                 if (playerTimer >= turnTimerThreshold)
                 {
                     turnQueue.Add(player);
                     playerTimer -= turnTimerThreshold;
                 }
-                enemyTimer += enemyPath.character.speed * Time.deltaTime * 10.0f;
+                enemyTimer += enemyStats.character.speed * Time.deltaTime * 10.0f;
                 if (enemyTimer >= turnTimerThreshold)
                 {
                     turnQueue.Add(enemy);

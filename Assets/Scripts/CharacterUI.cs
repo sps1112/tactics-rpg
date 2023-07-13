@@ -15,11 +15,11 @@ public class CharacterUI : MonoBehaviour
     public TextMeshProUGUI actionText; // Reference to the Actions UI
 
     // Sets the Character Details
-    public void SetCharacter(Character character)
+    public void SetCharacter(Stats stats)
     {
-        nameText.text = character.characterName;
-        portrait.sprite = character.potrait;
-        hpText.text = "HP:- " + character.hp + "/" + character.hp;
-        actionText.text = "Actions:- " + character.actions + "/" + character.actions;
+        nameText.text = stats.character.characterName;
+        portrait.sprite = stats.character.potrait;
+        hpText.text = "HP:- " + stats.hp + "/" + stats.character.hp;
+        actionText.text = "Actions:- " + stats.actions + "/" + stats.character.actions;
     }
 }

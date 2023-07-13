@@ -65,7 +65,7 @@ public class Path
 
 public class Pathfinding : MonoBehaviour
 {
-    public Character character; // Reference to the character data
+    private Stats stats; // Reference to the character stats
 
     private GridSpawner spawner = null; // Reference to the Grid Spawner
 
@@ -93,6 +93,7 @@ public class Pathfinding : MonoBehaviour
 
     void Start()
     {
+        stats = GetComponent<Stats>();
         spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
     }
 
@@ -101,6 +102,7 @@ public class Pathfinding : MonoBehaviour
     {
         if (spawner == null)
         {
+            stats = GetComponent<Stats>();
             spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
         }
         return spawner.GetElement(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
@@ -174,7 +176,7 @@ public class Pathfinding : MonoBehaviour
                 GridElement neighbour = current.neighbours[i];
                 if (neighbour.IsTraversable(isPlayer) && !closedList.HasElement(neighbour))
                 {
-                    if (Mathf.Abs(current.height - neighbour.height) <= character.jump)
+                    if (Mathf.Abs(current.height - neighbour.height) <= stats.character.jump)
                     {
                         int moveCost = current.gCost + current.GetDistance(neighbour);
                         if (!openList.HasElement(neighbour) || moveCost < neighbour.gCost)

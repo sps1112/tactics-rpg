@@ -68,7 +68,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Sets the Turn UI
-    public void SetTurnUI(TurnType type, int turnCounter, Character character)
+    public void SetTurnUI(TurnType type, int turnCounter, Stats stats)
     {
         turnUI.SetActive(true);
         turnCountText.text = "TURN: " + turnCounter.ToString();
@@ -77,7 +77,7 @@ public class UIManager : MonoBehaviour
             enemyUI.gameObject.SetActive(false);
             turnText.text = "Player Turn";
             playerUI.gameObject.SetActive(true);
-            playerUI.SetCharacter(character);
+            playerUI.SetCharacter(stats);
             SetActionsUI(true);
         }
         else
@@ -86,7 +86,7 @@ public class UIManager : MonoBehaviour
             SetActionsUI(false);
             turnText.text = "Enemy Turn";
             enemyUI.gameObject.SetActive(true);
-            enemyUI.SetCharacter(character);
+            enemyUI.SetCharacter(stats);
         }
     }
 

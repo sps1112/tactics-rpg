@@ -41,6 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2404215211146564}
   - component: {fileID: 3240543967563140613}
+  - component: {fileID: 6256787392553068144}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -75,7 +76,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c6f79dcca07518468fb81ed6402ba80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: {fileID: 11400000, guid: 178a9a73e325b5345a161cd660286512, type: 2}
   isPlayer: 1
   moving: 0
   minDistance: 0.05
@@ -85,6 +85,21 @@ MonoBehaviour:
   moveSpeed: 4
   rotateSpeed: 30
   currentGrid: {fileID: 0}
+--- !u!114 &6256787392553068144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2404215211146565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7784f529369580448d187639adf298b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  character: {fileID: 11400000, guid: 178a9a73e325b5345a161cd660286512, type: 2}
+  hp: 0
+  actions: 0
 --- !u!1001 &3431213331980940255
 PrefabInstance:
   m_ObjectHideFlags: 0
