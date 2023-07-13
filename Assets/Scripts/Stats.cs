@@ -22,4 +22,10 @@ public class Stats : MonoBehaviour
         actions -= amount;
         actions = CustomMath.Clamp(actions, 0, character.actions);
     }
+
+    // Resets the actions to max value
+    public void ResetActions()
+    {
+        actions = character.actions;
+    }
 }

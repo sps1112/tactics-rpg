@@ -13,7 +13,7 @@ public class ActionsManager : MonoBehaviour
     // Allows player to attack any valid enemy
     public void Attack()
     {
-
+        GetComponent<TurnManager>().ShowAttackGrids();
     }
 
     // Allows the player to skip the turn

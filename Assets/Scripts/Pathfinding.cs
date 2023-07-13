@@ -88,6 +88,8 @@ public class Pathfinding : MonoBehaviour
 
     private GridSpawner spawner = null; // Reference to the Grid Spawner
 
+    private TurnManager turn = null; // Reference to the Turn Manager
+
     public bool isPlayer = true; // Whether agent is Player or Enemy
 
     public bool moving = false; // Whether the agent is moving
@@ -114,6 +116,7 @@ public class Pathfinding : MonoBehaviour
     {
         stats = GetComponent<Stats>();
         spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
+        turn = GameObject.Find("GameManager").GetComponent<TurnManager>();
     }
 
     // Returns the grid which the agent is currently upon
@@ -123,6 +126,7 @@ public class Pathfinding : MonoBehaviour
         {
             stats = GetComponent<Stats>();
             spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
+            turn = GameObject.Find("GameManager").GetComponent<TurnManager>();
         }
         return spawner.GetElement(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
     }
@@ -329,7 +333,8 @@ public class Pathfinding : MonoBehaviour
                     moving = false;
                     movePath.HighlightPath(false);
                     SetGrid();
-                    GameObject.Find("GameManager").GetComponent<TurnManager>().StartCoroutine("EndTurn");
+                    stats.UseActions(movePath.length);
+                    turn.CheckTurnStatus();
                     return;
                 }
                 else

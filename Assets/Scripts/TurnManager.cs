@@ -153,9 +153,9 @@ public class TurnManager : MonoBehaviour
         enemyGrid = enemyPath.GetGrid();
         GameObject current = turnQueue[0];
         turnQueue.RemoveAt(0);
+        current.GetComponent<Stats>().ResetActions();
         if (current == player)
         {
-
             turn = TurnType.PLAYER;
             Camera.main.GetComponent<CameraFollow>().SetTarget(player);
             Camera.main.GetComponent<CameraFollow>().SetMotion(false);
@@ -208,15 +208,32 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    // Hides the possible move grids for the current character
-    public void HideMoveGrids()
+    // Moves back to action menu for the character
+    public void BackToActionsMenu()
     {
         ui.SetActionsUI(true);
         ui.HideHint();
+        if (turn == TurnType.PLAYER)
+        {
+            playerGrid.HideHighlight();
+            playerGrid = playerPath.GetGrid();
+            Camera.main.GetComponent<CameraFollow>().SetMotion(false);
+            ui.SetTurnUI(turn, turnCounter, playerStats);
+        }
+        else
+        {
+            ui.SetTurnUI(turn, turnCounter, enemyStats);
+        }
+    }
+
+    // Hides the possible move grids for the current character
+    public void HideMoveGrids()
+    {
         foreach (GridElement grid in highlightedGrids)
         {
             grid.HideHighlight();
         }
+        BackToActionsMenu();
     }
 
     // Moves the player to the target grid
@@ -307,6 +324,33 @@ public class TurnManager : MonoBehaviour
         path.FixForGrids(highlightedGrids);
         enemyGrid.PathHighlight(false);
         enemyPath.MoveViaPath(path);
+    }
+
+    // Starts the attack action for the current character
+    public void ShowAttackGrids()
+    {
+        playerStats.UseActions(1);
+        CheckTurnStatus();
+    }
+
+    // Checks if the character has used all their actions
+    public void CheckTurnStatus()
+    {
+        if (turn == TurnType.PLAYER)
+        {
+            if (playerStats.actions == 0)
+            {
+                StartCoroutine("EndTurn");
+            }
+            else
+            {
+                BackToActionsMenu();
+            }
+        }
+        else
+        {
+            StartCoroutine("EndTurn");
+        }
     }
 
     // Starts the game getting the turn order
