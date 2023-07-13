@@ -24,6 +24,17 @@ public class InputManager : MonoBehaviour
         canInput = status;
     }
 
+    // Hides the current grid highlight
+    void HideCurrentHighlight()
+    {
+        if (currentGrid != null)
+        {
+            ui.ResetGridElementUI();
+            currentGrid.HideHighlight();
+            currentGrid = null;
+        }
+    }
+
     void FixedUpdate()
     {
         if (turnManager.gameStarted)
@@ -52,22 +63,12 @@ public class InputManager : MonoBehaviour
                 }
                 else
                 {
-                    if (currentGrid != null)
-                    {
-                        ui.ResetGridElementUI();
-                        currentGrid.HideHighlight();
-                        currentGrid = null;
-                    }
+                    HideCurrentHighlight();
                 }
             }
             if (turnManager.turn == TurnType.ENEMY)
             {
-                if (currentGrid != null)
-                {
-                    ui.ResetGridElementUI();
-                    currentGrid.HideHighlight();
-                    currentGrid = null;
-                }
+                HideCurrentHighlight();
             }
         }
         else
@@ -135,6 +136,7 @@ public class InputManager : MonoBehaviour
                     }
                     if (Input.GetMouseButtonDown(1))
                     {
+                        HideCurrentHighlight();
                         GetComponent<UIManager>().SetActionsUI(true);
                     }
                 }

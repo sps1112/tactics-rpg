@@ -147,8 +147,7 @@ public class TurnManager : MonoBehaviour
         turnQueue.RemoveAt(0);
         if (current == player)
         {
-            enemyPath.StopCoroutine("RotateToTarget");
-            enemyPath.StartCoroutine("RotateToTarget", playerGrid.transform.position);
+
             turn = TurnType.PLAYER;
             Camera.main.GetComponent<CameraFollow>().SetTarget(player);
             Camera.main.GetComponent<CameraFollow>().SetMotion(false);
@@ -280,6 +279,50 @@ public class TurnManager : MonoBehaviour
             yield return new WaitForSeconds(Time.deltaTime * 10.0f);
         }
         ui.HideHint();
+        NextTurn();
+    }
+
+    // Ends the turn with the player choosing the snap direction
+    IEnumerator EndTurn()
+    {
+        if (turn == TurnType.PLAYER)
+        {
+            playerGrid.HideHighlight();
+            ui.HideTurnUI(true);
+            ui.ResetGridElementUI();
+            turn = TurnType.NONE;
+            ui.ShowHintText("Use WSAD/Directional Keys to choose a direction to snap to and Enter/Left-Click to end turn...");
+            while (true)
+            {
+                if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
+                {
+                    player.transform.forward = Vector3.forward;
+                }
+                if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
+                {
+                    player.transform.forward = -Vector3.forward;
+                }
+                if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+                {
+                    player.transform.forward = -Vector3.right;
+                }
+                if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
+                {
+                    player.transform.forward = Vector3.right;
+                }
+                if (Input.GetMouseButtonUp(0) || Input.GetKeyDown(KeyCode.Return))
+                {
+                    break;
+                }
+                yield return new WaitForSeconds(Time.deltaTime);
+            }
+            ui.HideHint();
+        }
+        else
+        {
+            enemyPath.StopCoroutine("RotateToTarget");
+            enemyPath.StartCoroutine("RotateToTarget", playerGrid.transform.position);
+        }
         NextTurn();
     }
 

@@ -277,7 +277,7 @@ public class Pathfinding : MonoBehaviour
                     moving = false;
                     movePath.HighlightPath(false);
                     SetGrid();
-                    GameObject.Find("GameManager").GetComponent<TurnManager>().NextTurn();
+                    GameObject.Find("GameManager").GetComponent<TurnManager>().StartCoroutine("EndTurn");
                     return;
                 }
                 else

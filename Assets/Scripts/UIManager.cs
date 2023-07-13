@@ -90,6 +90,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Hides one of the two character UI
+    public void HideTurnUI(bool isPlayer)
+    {
+        if (isPlayer)
+        {
+            playerUI.gameObject.SetActive(false);
+        }
+        else
+        {
+            enemyUI.gameObject.SetActive(false);
+        }
+    }
+
     // Shows the hint UI with given text
     public void ShowHintText(string text)
     {
