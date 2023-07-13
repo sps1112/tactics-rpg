@@ -51,6 +51,25 @@ public class Path
         }
     }
 
+    // Clamps the path to the grids available in given grid list
+    public void FixForGrids(List<GridElement> grids)
+    {
+        List<GridElement> newElements = new List<GridElement>();
+        for (int i = 0; i < length; i++)
+        {
+            if (grids.Contains(elements[i]))
+            {
+                newElements.Add(elements[i]);
+            }
+            else
+            {
+                length = i;
+                break;
+            }
+        }
+        elements = newElements;
+    }
+
     // Prints the path
     public void PrintPath()
     {

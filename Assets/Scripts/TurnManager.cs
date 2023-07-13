@@ -164,6 +164,7 @@ public class TurnManager : MonoBehaviour
         {
             turn = TurnType.ENEMY;
             Camera.main.GetComponent<CameraFollow>().SetTarget(enemy);
+            StartCoroutine("StartEnemyTurn", 0.75f);
         }
         turnCounter++;
         ui.SetTurnUI(turn, turnCounter, current.GetComponent<Stats>());
@@ -303,6 +304,7 @@ public class TurnManager : MonoBehaviour
         {
             path = incompletePaths[0];
         }
+        path.FixForGrids(highlightedGrids);
         enemyGrid.PathHighlight(false);
         enemyPath.MoveViaPath(path);
     }
@@ -362,6 +364,22 @@ public class TurnManager : MonoBehaviour
             enemyPath.StartCoroutine("RotateToTarget", playerGrid.transform.position);
         }
         NextTurn();
+    }
+
+    // Starts the enemy turn showing the grids and initiating action
+    IEnumerator StartEnemyTurn(float timeLimit)
+    {
+        highlightedGrids = enemyPath.GetConnectedGrids();
+        foreach (GridElement grid in highlightedGrids)
+        {
+            grid.ActionHighlight();
+        }
+        yield return new WaitForSeconds(timeLimit);
+        foreach (GridElement grid in highlightedGrids)
+        {
+            grid.HideHighlight();
+        }
+        MoveEnemy();
     }
 
     void Update()

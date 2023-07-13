@@ -129,12 +129,7 @@ public class UIManager : MonoBehaviour
     // Turns off the hint after a time
     IEnumerator ShowHint(float timeLimit)
     {
-        float timer = 0.0f;
-        while (timer <= timeLimit)
-        {
-            timer += Time.deltaTime;
-            yield return new WaitForSeconds(Time.deltaTime);
-        }
+        yield return new WaitForSeconds(timeLimit);
         HideHint();
     }
 }

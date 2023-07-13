@@ -130,12 +130,6 @@ public class InputManager : MonoBehaviour
                     }
                 }
             }
-
-            // Enemy's Turn
-            if (turnManager.turn == TurnType.ENEMY && !turnManager.isEnemyMoving())
-            {
-                turnManager.MoveEnemy();
-            }
         }
         else
         {
