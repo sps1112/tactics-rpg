@@ -113,6 +113,7 @@ public class UIManager : MonoBehaviour
     // Hides the hint UI
     public void HideHint()
     {
+        StopCoroutine("ShowHint");
         hintText.text = "";
         hintUI.SetActive(false);
     }

@@ -30,7 +30,14 @@ public class InputManager : MonoBehaviour
         if (currentGrid != null)
         {
             ui.ResetGridElementUI();
-            currentGrid.HideHighlight();
+            if (currentGrid.isActionGrid)
+            {
+                currentGrid.ActionHighlight();
+            }
+            else
+            {
+                currentGrid.HideHighlight();
+            }
             currentGrid = null;
         }
     }
@@ -52,7 +59,7 @@ public class InputManager : MonoBehaviour
                         {
                             return;
                         }
-                        currentGrid.HideHighlight();
+                        HideCurrentHighlight();
                     }
                     if (canInput)
                     {
@@ -83,32 +90,14 @@ public class InputManager : MonoBehaviour
                     {
                         return;
                     }
-                    if (turnManager.playerSpawnPoints.Contains(currentGrid))
-                    {
-                        currentGrid.SpawnHighlight();
-                    }
-                    else
-                    {
-                        currentGrid.HideHighlight();
-                    }
+                    HideCurrentHighlight();
                 }
                 currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
                 currentGrid.ShowHighlight();
             }
             else
             {
-                if (currentGrid != null)
-                {
-                    if (turnManager.playerSpawnPoints.Contains(currentGrid))
-                    {
-                        currentGrid.SpawnHighlight();
-                    }
-                    else
-                    {
-                        currentGrid.HideHighlight();
-                    }
-                    currentGrid = null;
-                }
+                HideCurrentHighlight();
             }
         }
     }
@@ -137,7 +126,7 @@ public class InputManager : MonoBehaviour
                     if (Input.GetMouseButtonDown(1))
                     {
                         HideCurrentHighlight();
-                        GetComponent<UIManager>().SetActionsUI(true);
+                        turnManager.HideMoveGrids();
                     }
                 }
             }

@@ -57,6 +57,8 @@ public class TurnManager : MonoBehaviour
 
     public float enemyTimer = 0; // Timer for the enemy
 
+    private List<GridElement> highlightedGrids; // List of grids currently being highlighted
+
     void Start()
     {
         ui = GetComponent<UIManager>();
@@ -110,7 +112,7 @@ public class TurnManager : MonoBehaviour
         ui.ShowHintText("Left Click on any of the highlighted grids to spawn the player...");
         foreach (GridElement element in playerSpawnPoints)
         {
-            element.SpawnHighlight();
+            element.ActionHighlight();
         }
         if (playerSpawnPoints.Count > 0)
         {
@@ -190,12 +192,42 @@ public class TurnManager : MonoBehaviour
         return enemyPath.moving;
     }
 
+    // Shows the possible move grids for the current character
+    public void ShowMoveGrids()
+    {
+        ui.SetActionsUI(false);
+        if (turn == TurnType.PLAYER)
+        {
+            highlightedGrids = playerPath.GetConnectedGrids();
+            foreach (GridElement grid in highlightedGrids)
+            {
+                grid.ActionHighlight();
+            }
+            ui.ShowHintTemp("Click on highlighted grids to move to...", 1.0f);
+        }
+    }
+
+    // Hides the possible move grids for the current character
+    public void HideMoveGrids()
+    {
+        ui.SetActionsUI(true);
+        ui.HideHint();
+        foreach (GridElement grid in highlightedGrids)
+        {
+            grid.HideHighlight();
+        }
+    }
+
     // Moves the player to the target grid
     public void MovePlayer(GridElement target)
     {
-        Path path = playerPath.GetPath(target);
-        if (path.IsCompletePath(target))
+        if (highlightedGrids.Contains(target))
         {
+            Path path = playerPath.GetPath(target);
+            foreach (GridElement grid in highlightedGrids)
+            {
+                grid.HideHighlight();
+            }
             playerGrid.PathHighlight(false);
             Camera.main.GetComponent<CameraFollow>().SetTarget(player);
             Camera.main.GetComponent<CameraFollow>().SetMotion(true);

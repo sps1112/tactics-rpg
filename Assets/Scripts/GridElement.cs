@@ -45,7 +45,9 @@ public class GridElement : MonoBehaviour
 
     public Color targetHColor; // Highlight color for target grid in a path
 
-    public Color spawnColor; // Highlight color for grids to spawn player
+    public Color actionHColor; // Highlight color for grids on which actions can be performed
+
+    public bool isActionGrid = false; // Whether the grid is an action grid
 
     void Start()
     {
@@ -116,6 +118,7 @@ public class GridElement : MonoBehaviour
     public void HideHighlight()
     {
         highlight.color = hiddenHColor;
+        isActionGrid = false;
     }
 
     // Highlights grid along a path
@@ -124,14 +127,15 @@ public class GridElement : MonoBehaviour
         highlight.color = (isTarget) ? (targetHColor) : (pathHColor);
     }
 
-    // Highlights the grid to show it can spawn player
-    public void SpawnHighlight()
+    // Highlights the grid to show it can be used for actions
+    public void ActionHighlight()
     {
         if (highlight == null)
         {
             highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
         }
-        highlight.color = spawnColor;
+        highlight.color = actionHColor;
+        isActionGrid = true;
     }
 
     // Prints the details of the current grid 

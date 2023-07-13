@@ -119,6 +119,37 @@ public class Pathfinding : MonoBehaviour
         currentGrid.SetState((isPlayer) ? (GridState.PLAYER) : (GridState.ENEMY));
     }
 
+    // Gets all the connected grids for this character
+    public List<GridElement> GetConnectedGrids()
+    {
+        List<GridElement> grids = new List<GridElement>();
+        GridElement origin = GetGrid();
+        grids.Add(origin);
+        List<GridElement> lastGrids = new List<GridElement>();
+        lastGrids.Add(origin);
+        int steps = stats.actions;
+        for (int i = 0; i < steps; i++)
+        {
+            List<GridElement> newGrids = new List<GridElement>();
+            foreach (GridElement grid in lastGrids)
+            {
+                foreach (GridElement neighbour in grid.neighbours)
+                {
+                    if (neighbour.IsTraversable(isPlayer) && !grids.Contains(neighbour))
+                    {
+                        if (Mathf.Abs(grid.height - neighbour.height) <= stats.character.jump)
+                        {
+                            newGrids.Add(neighbour);
+                            grids.Add(neighbour);
+                        }
+                    }
+                }
+            }
+            lastGrids = newGrids;
+        }
+        return grids;
+    }
+
     // Gets the Path to the Target Grid
     public Path GetPath(GridElement target)
     {
