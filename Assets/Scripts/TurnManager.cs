@@ -107,6 +107,10 @@ public class TurnManager : MonoBehaviour
         {
             element.SpawnHighlight();
         }
+        if (playerSpawnPoints.Count > 0)
+        {
+            Camera.main.GetComponent<CameraFollow>().SetTarget(playerSpawnPoints[0].gameObject);
+        }
     }
 
     // Spawns a new player at given grid
@@ -211,40 +215,43 @@ public class TurnManager : MonoBehaviour
         {
             if (neighbour.IsTraversable(false))
             {
-                Path nPath = enemyPath.GetPath(neighbour);
-                int pDist = nPath.GetPathDistance() + enemyGrid.GetDistance(nPath.elements[0]);
-                if (nPath.IsCompletePath(neighbour))
+                if (Mathf.Abs(playerGrid.height - neighbour.height) <= enemyPath.character.jump)
                 {
-                    if (nPath.length < minLenC)
+                    Path nPath = enemyPath.GetPath(neighbour);
+                    int pDist = nPath.GetPathDistance() + enemyGrid.GetDistance(nPath.elements[0]);
+                    if (nPath.IsCompletePath(neighbour))
                     {
-                        minLenC = nPath.length;
-                        minDistC = pDist;
-                        completePaths.Insert(0, nPath);
-                    }
-                    else if (nPath.length == minLenC)
-                    {
-                        if (pDist < minDistC)
+                        if (nPath.length < minLenC)
                         {
+                            minLenC = nPath.length;
                             minDistC = pDist;
                             completePaths.Insert(0, nPath);
                         }
-                    }
-                }
-                else
-                {
-                    if (nPath.length < minLenIC)
-                    {
-                        minLenIC = nPath.length;
-                        minDistIC = pDist;
-                        incompletePaths.Insert(0, nPath);
-
-                    }
-                    else if (nPath.length == minLenIC)
-                    {
-                        if (pDist < minDistIC)
+                        else if (nPath.length == minLenC)
                         {
+                            if (pDist < minDistC)
+                            {
+                                minDistC = pDist;
+                                completePaths.Insert(0, nPath);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (nPath.length < minLenIC)
+                        {
+                            minLenIC = nPath.length;
                             minDistIC = pDist;
                             incompletePaths.Insert(0, nPath);
+
+                        }
+                        else if (nPath.length == minLenIC)
+                        {
+                            if (pDist < minDistIC)
+                            {
+                                minDistIC = pDist;
+                                incompletePaths.Insert(0, nPath);
+                            }
                         }
                     }
                 }
