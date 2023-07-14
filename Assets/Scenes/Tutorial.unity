@@ -38132,7 +38132,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Skip
+  m_text: Wait
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -41741,7 +41741,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 4
+  orthographic size: 3.25
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -41765,7 +41765,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1989018616}
   m_LocalRotation: {x: 0.23911765, y: -0.3696438, z: 0.09904577, w: 0.89239913}
-  m_LocalPosition: {x: 8, y: 6.175, z: -6}
+  m_LocalPosition: {x: 12, y: 6.175, z: -2.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -41816,7 +41816,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   offset: {x: 8, y: 6, z: -6}
-  cameraSpeed: 0.035
+  cameraSpeed: 0.02
   dragFactor: 200
 --- !u!1 &1989543621
 GameObject:
@@ -42627,7 +42627,7 @@ GameObject:
   - component: {fileID: 2037486405}
   - component: {fileID: 2037486404}
   m_Layer: 5
-  m_Name: SkipTurn
+  m_Name: WaitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42699,7 +42699,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1564526491}
         m_TargetAssemblyTypeName: ActionsManager, Assembly-CSharp
-        m_MethodName: Skip
+        m_MethodName: Wait
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

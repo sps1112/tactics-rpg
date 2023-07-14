@@ -16,8 +16,8 @@ public class ActionsManager : MonoBehaviour
         GetComponent<TurnManager>().ShowAttackGrids();
     }
 
-    // Allows the player to skip the turn
-    public void Skip()
+    // Allows the player to wait this turn
+    public void Wait()
     {
         GetComponent<TurnManager>().StartCoroutine("EndTurn");
     }
