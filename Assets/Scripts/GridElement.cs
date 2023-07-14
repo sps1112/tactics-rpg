@@ -298,7 +298,6 @@ public class GridHeap
         SortUp(element);
     }
 
-
     // Prints the Heap
     public void PrintHeap()
     {

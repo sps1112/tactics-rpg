@@ -17,4 +17,3 @@ public class GridLayout : ScriptableObject
 
     public int[] layout; // The height of each grid
 }
-

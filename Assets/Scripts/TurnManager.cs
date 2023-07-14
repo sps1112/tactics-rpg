@@ -59,6 +59,8 @@ public class TurnManager : MonoBehaviour
 
     private List<GridElement> highlightedGrids; // List of grids currently being highlighted
 
+    private bool actedThisTurn = false; // Whether the character has acted this turn
+
     void Start()
     {
         ui = GetComponent<UIManager>();
@@ -109,7 +111,7 @@ public class TurnManager : MonoBehaviour
         {
             ui = GetComponent<UIManager>();
         }
-        ui.ShowHintText("Left Click on any of the highlighted grids to spawn the player...");
+        ui.ShowHintText("Click on the highlighted grids to spawn the player");
         foreach (GridElement element in playerSpawnPoints)
         {
             element.ActionHighlight();
@@ -154,6 +156,7 @@ public class TurnManager : MonoBehaviour
         GameObject current = turnQueue[0];
         turnQueue.RemoveAt(0);
         current.GetComponent<Stats>().ResetActions();
+        actedThisTurn = false;
         if (current == player)
         {
             turn = TurnType.PLAYER;
@@ -204,7 +207,7 @@ public class TurnManager : MonoBehaviour
             {
                 grid.ActionHighlight();
             }
-            ui.ShowHintTemp("Click on highlighted grids to move to...", 1.0f);
+            ui.ShowHintTemp("Click on the highlighted grids to move", 1.0f);
         }
     }
 
@@ -329,16 +332,31 @@ public class TurnManager : MonoBehaviour
     // Starts the attack action for the current character
     public void ShowAttackGrids()
     {
-        if (playerGrid.canActOnGrid && playerStats.actions >= 1)
+        if (!actedThisTurn)
         {
-            ui.SetActionsUI(false);
-            // IMPLEMENTATION HERE LATER
-            playerStats.UseActions(playerStats.actions); // Currently use all remaining actions
-            CheckTurnStatus();
+            if (playerGrid.canActOnGrid && playerStats.actions >= 1)
+            {
+                ui.SetActionsUI(false);
+                // IMPLEMENTATION HERE LATER
+                if (playerStats.actions < playerStats.character.actions) // Has moved this turn
+                {
+                    playerStats.UseActions(playerStats.actions); // Use all remaining actions
+                }
+                else // Has not moved this turn
+                {
+                    playerStats.UseActions(1);
+                }
+                actedThisTurn = true;
+                CheckTurnStatus();
+            }
+            else
+            {
+                ui.ShowHintTemp("CANNOT EXECUTE ACTION ON THIS BLOCK!", 0.75f);
+            }
         }
         else
         {
-            ui.ShowHintTemp("CANNOT EXECUTE ACTION ON THIS BLOCK!", 0.75f);
+            ui.ShowHintTemp("CANNOT EXECUTE ACTION THIS TURN!", 0.75f);
         }
     }
 
@@ -385,7 +403,7 @@ public class TurnManager : MonoBehaviour
             ui.HideTurnUI(true);
             ui.ResetGridElementUI();
             turn = TurnType.NONE;
-            ui.ShowHintText("Use WSAD/Directional Keys to choose a direction to snap to and Enter/Left-Click to end turn...");
+            ui.ShowHintText("Use WSAD/Arrow Keys to choose direction to snap to. Press Enter/Left-Click to end turn");
             ui.SetActionsUI(false);
             while (true)
             {

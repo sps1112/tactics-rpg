@@ -49,7 +49,6 @@ public class InputManager : MonoBehaviour
         {
             if (turnManager.turn == TurnType.PLAYER && !turnManager.isPlayerMoving())
             {
-
                 Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
                 // Hovering over a Grid Element
                 if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
