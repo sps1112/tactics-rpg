@@ -61,11 +61,14 @@ public class TurnManager : MonoBehaviour
 
     private bool actedThisTurn = false; // Whether the character has acted this turn
 
+    public float titleUITime = 1.5f; // Time for which the title screen is shown
+
+    private CameraFollow cam; // Reference to the camera
+
     void Start()
     {
         ui = GetComponent<UIManager>();
-        GenerateEnemies();
-        GeneratePlayers();
+        SetupLevel();
     }
 
     // Adds spawn point for enemy and players to spawn to
@@ -87,6 +90,13 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    // Sets up the level for gameplay
+    public void SetupLevel()
+    {
+        GenerateEnemies();
+        ui.StartCoroutine("ShowTitleUI", titleUITime);
+    }
+
     // Generates enemies on the possible point points
     public void GenerateEnemies()
     {
@@ -101,24 +111,6 @@ public class TurnManager : MonoBehaviour
             enemyPath = enemy.GetComponent<Pathfinding>();
             enemyPath.SetGrid();
             enemyGrid = enemyPath.GetGrid();
-        }
-    }
-
-    // Generates player on grid
-    public void GeneratePlayers()
-    {
-        if (ui == null)
-        {
-            ui = GetComponent<UIManager>();
-        }
-        ui.ShowHintText("Click on the highlighted grids to spawn the player");
-        foreach (GridElement element in playerSpawnPoints)
-        {
-            element.ActionHighlight();
-        }
-        if (playerSpawnPoints.Count > 0)
-        {
-            Camera.main.GetComponent<CameraFollow>().SetTarget(playerSpawnPoints[0].gameObject);
         }
     }
 
@@ -161,7 +153,7 @@ public class TurnManager : MonoBehaviour
         {
             turn = TurnType.PLAYER;
             Camera.main.GetComponent<CameraFollow>().SetTarget(player);
-            Camera.main.GetComponent<CameraFollow>().SetMotion(false);
+            Camera.main.GetComponent<CameraFollow>().canDrag = true;
         }
         else
         {
@@ -220,7 +212,7 @@ public class TurnManager : MonoBehaviour
         {
             playerGrid.HideHighlight();
             playerGrid = playerPath.GetGrid();
-            Camera.main.GetComponent<CameraFollow>().SetMotion(false);
+            Camera.main.GetComponent<CameraFollow>().canDrag = true;
             ui.SetTurnUI(turn, turnCounter, playerStats);
         }
         else
@@ -251,7 +243,7 @@ public class TurnManager : MonoBehaviour
             }
             playerGrid.PathHighlight(false);
             Camera.main.GetComponent<CameraFollow>().SetTarget(player);
-            Camera.main.GetComponent<CameraFollow>().SetMotion(true);
+            Camera.main.GetComponent<CameraFollow>().canDrag = false;
             playerPath.MoveViaPath(path);
         }
         else
@@ -391,6 +383,27 @@ public class TurnManager : MonoBehaviour
         }
         ui.HideHint();
         NextTurn();
+    }
+
+    // Starts the player spawning process
+    public IEnumerator StartPlayerSpawning()
+    {
+        cam = Camera.main.GetComponent<CameraFollow>();
+        cam.SetTarget(playerSpawnPoints[0].gameObject);
+        while (!cam.SnappedToTarget())
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        if (ui == null)
+        {
+            ui = GetComponent<UIManager>();
+        }
+        ui.ShowHintText("Click on the highlighted grids to spawn the player");
+        foreach (GridElement element in playerSpawnPoints)
+        {
+            element.ActionHighlight();
+        }
+        GetComponent<InputManager>().SetInput(true);
     }
 
     // Ends the turn with the player choosing the snap direction

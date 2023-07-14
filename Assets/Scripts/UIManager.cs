@@ -29,6 +29,8 @@ public class UIManager : MonoBehaviour
 
     public GameObject actionsUI; // Reference to the actions UI
 
+    public GameObject titleUI; // Reference to the title UI
+
     void Start()
     {
         ResetGridElementUI();
@@ -131,5 +133,19 @@ public class UIManager : MonoBehaviour
     {
         yield return new WaitForSeconds(timeLimit);
         HideHint();
+    }
+
+    // Shows the Title UI and later starts the game
+    public IEnumerator ShowTitleUI(float timeLimit)
+    {
+        titleUI.SetActive(true);
+        Animator anim = titleUI.transform.GetChild(0).gameObject.GetComponent<Animator>();
+        yield return new WaitForSeconds(timeLimit);
+        anim.Play("UI Fade Out");
+        while (Standard.IsAnimationPlaying(anim, "UI Fade Out"))
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        GetComponent<TurnManager>().StartCoroutine("StartPlayerSpawning");
     }
 }

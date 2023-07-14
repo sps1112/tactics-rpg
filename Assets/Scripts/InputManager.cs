@@ -80,24 +80,27 @@ public class InputManager : MonoBehaviour
         }
         else
         {
-            Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-            // Hovering over a Grid Element
-            if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+            if (canInput)
             {
-                if (currentGrid != null)
+                Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // Hovering over a Grid Element
+                if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
                 {
-                    if (hit.collider.gameObject.GetComponent<GridElement>() == currentGrid)
+                    if (currentGrid != null)
                     {
-                        return;
+                        if (hit.collider.gameObject.GetComponent<GridElement>() == currentGrid)
+                        {
+                            return;
+                        }
+                        HideCurrentHighlight();
                     }
+                    currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
+                    currentGrid.ShowHighlight();
+                }
+                else
+                {
                     HideCurrentHighlight();
                 }
-                currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
-                currentGrid.ShowHighlight();
-            }
-            else
-            {
-                HideCurrentHighlight();
             }
         }
     }
@@ -133,13 +136,16 @@ public class InputManager : MonoBehaviour
         }
         else
         {
-            if (Input.GetMouseButtonDown(0))
+            if (canInput)
             {
-                Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
-                    turnManager.SpawnNewPlayer(element);
+                    Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
+                    {
+                        GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
+                        turnManager.SpawnNewPlayer(element);
+                    }
                 }
             }
         }

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b286687c1aa5c146be3e0a8bdca47f8, type: 3}
   m_Name: Level Tutorial
   m_EditorClassIdentifier: 
+  levelName: Tutorial
   rows: 10
   columns: 10
   bottom: {fileID: 2255774970726223019, guid: a8fec02f412c21e4dbe3695e1327ec17, type: 3}

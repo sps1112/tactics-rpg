@@ -6,7 +6,7 @@ public class CameraFollow : MonoBehaviour
 {
     private GameObject target = null; // Current Target for the camera
 
-    private bool isTargetMoving; // Whether the target is currently moving (cannot drag while moving)
+    public bool canDrag = false; // Whether the target is currently moving (cannot drag while moving)
 
     public Vector3 offset; // Offset to keep when snapped to target
 
@@ -23,19 +23,31 @@ public class CameraFollow : MonoBehaviour
     // Sets the target for the camera to snap to
     public void SetTarget(GameObject target_)
     {
-        toSnap = true;
-        target = target_;
+        if (target_ != null)
+        {
+            toSnap = true;
+            if (target_.tag != "Enemy")
+            {
+                canDrag = true;
+            }
+            target = target_;
+        }
+        else
+        {
+            Debug.Log("Target is null");
+        }
     }
 
-    // Sets the motion state for the camera
-    public void SetMotion(bool isTargetMoving_)
+    // Whether the camera is currently snapped to target
+    public bool SnappedToTarget()
     {
-        isTargetMoving = isTargetMoving_;
+        Vector3 pos = target.transform.position + offset;
+        return ((pos - transform.position).magnitude < 0.5f);
     }
 
     void LateUpdate()
     {
-        if (!isTargetMoving)
+        if (canDrag)
         {
             if (Input.GetMouseButtonDown(1))
             {

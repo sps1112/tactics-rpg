@@ -5,6 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GridLayout", menuName = "LevelGrid/GridLayout")]
 public class GridLayout : ScriptableObject
 {
+    public string levelName; // Name of this level layout
+
     public int rows; // Map rows
 
     public int columns; // Map columns
