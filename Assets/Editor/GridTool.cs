@@ -10,7 +10,7 @@ public enum WindowStates
 
 public class GridTool : EditorWindow
 {
-    string path = "Assets/Data/"; // Path to Grid Layout folder
+    string path = "Assets/Data/Levels/"; // Path to Grid Layout folder
 
     GridLayout asset = null; // Reference to the asset being changed
 
@@ -57,6 +57,7 @@ public class GridTool : EditorWindow
             if (asset != null)
             {
                 GUILayout.Label("Edit Grid Layout:-");
+                asset.levelName = EditorGUILayout.TextField("Level Name:- ", asset.levelName);
                 asset.rows = EditorGUILayout.IntField("Rows:- ", asset.rows);
                 asset.columns = EditorGUILayout.IntField("Columns:- ", asset.columns);
                 asset.bottom = (GameObject)EditorGUILayout.ObjectField("Bottom", asset.bottom, typeof(GameObject), true);

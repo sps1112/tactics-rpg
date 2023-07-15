@@ -20,17 +20,13 @@ public class GridSpawner : MonoBehaviour
 
     void Awake()
     {
-        layout = GetComponent<GameManager>().mission.level;
         GenerateGrid();
     }
 
     // Generates the Grid
     public void GenerateGrid()
     {
-        if (layout == null)
-        {
-            layout = GetComponent<GameManager>().mission.level;
-        }
+        layout = GetComponent<GameManager>().mission.level;
         if (!gridActive)
         {
             if (gridParents.Count <= 0)

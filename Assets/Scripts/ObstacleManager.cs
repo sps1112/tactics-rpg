@@ -37,6 +37,7 @@ public class ObstacleManager : MonoBehaviour
     // Generates the obstacles
     public void GenerateObstacles()
     {
+        layout = GetComponent<GameManager>().mission.obstacles;
         if (!obstaclesActive)
         {
             if (obstacles.Count <= 0)

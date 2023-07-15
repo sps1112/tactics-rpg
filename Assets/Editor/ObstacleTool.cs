@@ -3,7 +3,7 @@ using UnityEditor;
 
 public class ObstacleTool : EditorWindow
 {
-    string path = "Assets/Data/"; // Path to Obstacle Layout folder
+    string path = "Assets/Data/Obstacles/"; // Path to Obstacle Layout folder
 
     ObstacleLayout asset = null; // Reference to the asset being changed
 
@@ -25,7 +25,7 @@ public class ObstacleTool : EditorWindow
             {
                 state = WindowStates.NEW;
             }
-            if (GUILayout.Button("Load Level Layout"))
+            if (GUILayout.Button("Load Obstacle Layout"))
             {
                 state = WindowStates.LOAD;
             }
