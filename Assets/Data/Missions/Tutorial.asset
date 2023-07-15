@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d26525129af6c9488d875dbee3467eb, type: 3}
+  m_Name: Tutorial
+  m_EditorClassIdentifier: 
+  missionName: Getting Started
+  level: {fileID: 11400000, guid: 1822f9964a0c68f4c943cfef0864495b, type: 2}
+  obstacles: {fileID: 11400000, guid: d3877e5553e4a93458401fc2843d466b, type: 2}
+  enemies:
+  - {fileID: 11400000, guid: f82b76948e89c9240b5c74e402501e1f, type: 2}

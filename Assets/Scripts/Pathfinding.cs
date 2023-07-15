@@ -302,6 +302,7 @@ public class Pathfinding : MonoBehaviour
         movePath = path;
         moving = true;
         path.HighlightPath(true);
+        GameObject.Find("GameManager").GetComponent<InputManager>().HideCurrentHighlight(path);
         pathIndex = 0;
         StartCoroutine("RotateToTarget", movePath.elements[pathIndex].transform.position);
     }

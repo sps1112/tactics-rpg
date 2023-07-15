@@ -26,10 +26,6 @@ public class CameraFollow : MonoBehaviour
         if (target_ != null)
         {
             toSnap = true;
-            if (target_.tag != "Enemy")
-            {
-                canDrag = true;
-            }
             target = target_;
         }
         else

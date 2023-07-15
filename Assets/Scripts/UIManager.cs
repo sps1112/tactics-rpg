@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour
@@ -19,9 +20,17 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI turnText; // Turn Text UI Reference
 
+    public List<Image> turnPortraits; // Reference to the Turn portraits
+
     public GameObject hintUI; // Reference to the Hint UI
 
     public TextMeshProUGUI hintText; // Hint UI Reference
+
+    private bool isHintOn = false; // Whether a hint is being shown (not temporary)
+
+    private bool isTempHintOn = false; // Whether a temporary hint is being shown
+
+    private string prevHintText = ""; // The previous hint which was being displayed
 
     public CharacterUI playerUI; // Reference to the player UI
 
@@ -31,17 +40,23 @@ public class UIManager : MonoBehaviour
 
     public GameObject titleUI; // Reference to the title UI
 
+    public TextMeshProUGUI levelText; // Level UI Reference
+
+    public TextMeshProUGUI missionText; // Mission UI Reference
+
     void Start()
     {
         ResetGridElementUI();
     }
 
     // Hides all the UI Elements
-    public void HideUI()
+    public void HideUI(bool isPlayer)
     {
-        gridElementUI.SetActive(false);
+        ResetGridElementUI();
         turnUI.SetActive(false);
-        hintUI.SetActive(false);
+        HideTurnUI(isPlayer);
+        HideHint();
+        isHintOn = false;
     }
 
     // Sets the Grid UI
@@ -69,26 +84,56 @@ public class UIManager : MonoBehaviour
         GetComponent<InputManager>().SetInput(!status);
     }
 
+    // Sets the character UI for the character with status
+    public void SetCharacterUI(bool isPlayer, bool status, Stats stats)
+    {
+        if (isPlayer)
+        {
+            playerUI.gameObject.SetActive(status);
+            if (status)
+            {
+                playerUI.SetCharacter(stats);
+            }
+        }
+        else
+        {
+            enemyUI.gameObject.SetActive(status);
+            if (status)
+            {
+                enemyUI.SetCharacter(stats);
+            }
+        }
+    }
+
     // Sets the Turn UI
-    public void SetTurnUI(TurnType type, int turnCounter, Stats stats)
+    public void SetTurnUI(TurnType type, int turnCounter, GameObject current, List<GameObject> turnQueue)
     {
         turnUI.SetActive(true);
         turnCountText.text = "TURN: " + turnCounter.ToString();
         if (type == TurnType.PLAYER)
         {
-            enemyUI.gameObject.SetActive(false);
+            SetCharacterUI(false, false, null);
             turnText.text = "Player Turn";
-            playerUI.gameObject.SetActive(true);
-            playerUI.SetCharacter(stats);
+            SetCharacterUI(true, true, current.GetComponent<Stats>());
             SetActionsUI(true);
         }
         else
         {
-            playerUI.gameObject.SetActive(false);
+            SetCharacterUI(true, false, null);
             SetActionsUI(false);
             turnText.text = "Enemy Turn";
-            enemyUI.gameObject.SetActive(true);
-            enemyUI.SetCharacter(stats);
+            SetCharacterUI(false, true, current.GetComponent<Stats>());
+        }
+        for (int i = 0; i < turnPortraits.Count; i++)
+        {
+            if (i == 0)
+            {
+                turnPortraits[0].sprite = current.GetComponent<Stats>().character.potrait;
+            }
+            else
+            {
+                turnPortraits[i].sprite = turnQueue[i - 1].GetComponent<Stats>().character.potrait;
+            }
         }
     }
 
@@ -106,25 +151,59 @@ public class UIManager : MonoBehaviour
     }
 
     // Shows the hint UI with given text
-    public void ShowHintText(string text)
+    public void ShowHintText(string text, bool isTemp)
     {
         hintUI.SetActive(true);
+        if (isTemp)
+        {
+            isTempHintOn = true;
+        }
+        else
+        {
+            if (isTempHintOn)
+            {
+                StopCoroutine("ShowHint");
+                isTempHintOn = false;
+            }
+            isHintOn = true;
+            prevHintText = text;
+        }
         hintText.text = text;
     }
 
     // Hides the hint UI
     public void HideHint()
     {
-        StopCoroutine("ShowHint");
-        hintText.text = "";
+        if (isTempHintOn)
+        {
+            StopCoroutine("ShowHint");
+            isTempHintOn = false;
+            if (isHintOn)
+            {
+                hintText.text = prevHintText;
+                return;
+            }
+            else
+            {
+                hintText.text = "";
+            }
+        }
+        else if (isHintOn)
+        {
+            isHintOn = false;
+            hintText.text = "";
+        }
         hintUI.SetActive(false);
     }
 
     // Keeps showing the hint on the screen for a small time
     public void ShowHintTemp(string text, float time)
     {
-        StopCoroutine("ShowHint");
-        ShowHintText(text);
+        if (isTempHintOn)
+        {
+            StopCoroutine("ShowHint");
+        }
+        ShowHintText(text, true);
         StartCoroutine("ShowHint", time);
     }
 
@@ -139,13 +218,22 @@ public class UIManager : MonoBehaviour
     public IEnumerator ShowTitleUI(float timeLimit)
     {
         titleUI.SetActive(true);
+        Mission mission = GetComponent<GameManager>().mission;
+        levelText.text = mission.level.levelName;
+        missionText.text = mission.missionName;
         Animator anim = titleUI.transform.GetChild(0).gameObject.GetComponent<Animator>();
+        while (!Standard.IsAnimationPlaying(anim, "UI Normal"))
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
         yield return new WaitForSeconds(timeLimit);
         anim.Play("UI Fade Out");
+        yield return new WaitForSeconds(Time.deltaTime);
         while (Standard.IsAnimationPlaying(anim, "UI Fade Out"))
         {
             yield return new WaitForSeconds(Time.deltaTime);
         }
+        titleUI.SetActive(false);
         GetComponent<TurnManager>().StartCoroutine("StartPlayerSpawning");
     }
 }

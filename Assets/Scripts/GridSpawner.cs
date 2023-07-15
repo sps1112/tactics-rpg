@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GridSpawner : MonoBehaviour
 {
-    public GridLayout layout; // Reference to the grid layout object
+    private GridLayout layout = null; // Reference to the grid layout object
 
     public Transform gridOrigin; // Start point for grid generation
 
@@ -20,12 +20,17 @@ public class GridSpawner : MonoBehaviour
 
     void Awake()
     {
+        layout = GetComponent<GameManager>().mission.level;
         GenerateGrid();
     }
 
     // Generates the Grid
     public void GenerateGrid()
     {
+        if (layout == null)
+        {
+            layout = GetComponent<GameManager>().mission.level;
+        }
         if (!gridActive)
         {
             if (gridParents.Count <= 0)

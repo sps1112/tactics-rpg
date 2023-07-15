@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ObstacleManager : MonoBehaviour
 {
-    public ObstacleLayout layout; // Layout Object Reference
+    private ObstacleLayout layout = null; // Layout Object Reference
 
     public float obstacleHeightOffset = 0.475f; // Offset for spawning the obstacles
 
@@ -22,9 +22,16 @@ public class ObstacleManager : MonoBehaviour
 
     void Start()
     {
+        GetData();
+        GenerateObstacles();
+    }
+
+    // Gets the reference datas
+    void GetData()
+    {
+        layout = GetComponent<GameManager>().mission.obstacles;
         grid = GetComponent<GridSpawner>();
         turn = GetComponent<TurnManager>();
-        GenerateObstacles();
     }
 
     // Generates the obstacles
@@ -35,10 +42,9 @@ public class ObstacleManager : MonoBehaviour
             if (obstacles.Count <= 0)
             {
                 // For Obstacle generation via Editor
-                if (grid == null || turn == null)
+                if (layout == null || grid == null || turn == null)
                 {
-                    grid = GetComponent<GridSpawner>();
-                    turn = GetComponent<TurnManager>();
+                    GetData();
                 }
                 // Create Parent object if already not created
                 if (obstacleParent == null)

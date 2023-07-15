@@ -18,15 +18,8 @@ public class InputManager : MonoBehaviour
         turnManager = GetComponent<TurnManager>();
     }
 
-    // Sets the Input state
-    public void SetInput(bool status)
-    {
-        HideCurrentHighlight();
-        canInput = status;
-    }
-
     // Hides the current grid highlight
-    void HideCurrentHighlight()
+    public void HideCurrentHighlight(Path path)
     {
         if (currentGrid != null)
         {
@@ -37,10 +30,24 @@ public class InputManager : MonoBehaviour
             }
             else
             {
-                currentGrid.HideHighlight();
+                if (path != null && path.elements.Contains(currentGrid))
+                {
+                    return;
+                }
+                else
+                {
+                    currentGrid.HideHighlight();
+                }
             }
             currentGrid = null;
         }
+    }
+
+    // Sets the Input state
+    public void SetInput(bool status)
+    {
+        HideCurrentHighlight(null);
+        canInput = status;
     }
 
     void FixedUpdate()
@@ -59,7 +66,7 @@ public class InputManager : MonoBehaviour
                         {
                             return;
                         }
-                        HideCurrentHighlight();
+                        HideCurrentHighlight(null);
                     }
                     if (canInput)
                     {
@@ -70,12 +77,12 @@ public class InputManager : MonoBehaviour
                 }
                 else
                 {
-                    HideCurrentHighlight();
+                    HideCurrentHighlight(null);
                 }
             }
             if (turnManager.turn == TurnType.ENEMY)
             {
-                HideCurrentHighlight();
+                HideCurrentHighlight(null);
             }
         }
         else
@@ -92,14 +99,14 @@ public class InputManager : MonoBehaviour
                         {
                             return;
                         }
-                        HideCurrentHighlight();
+                        HideCurrentHighlight(null);
                     }
                     currentGrid = hit.collider.gameObject.GetComponent<GridElement>();
                     currentGrid.ShowHighlight();
                 }
                 else
                 {
-                    HideCurrentHighlight();
+                    HideCurrentHighlight(null);
                 }
             }
         }
@@ -128,7 +135,7 @@ public class InputManager : MonoBehaviour
                     }
                     if (Input.GetMouseButtonDown(1))
                     {
-                        HideCurrentHighlight();
+                        HideCurrentHighlight(null);
                         turnManager.HideMoveGrids();
                     }
                 }
@@ -138,13 +145,13 @@ public class InputManager : MonoBehaviour
         {
             if (canInput)
             {
-                if (Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonUp(0))
                 {
                     Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
                     if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
                     {
                         GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
-                        turnManager.SpawnNewPlayer(element);
+                        turnManager.StartCoroutine("ConfirmPlayerSpawning", element);
                     }
                 }
             }

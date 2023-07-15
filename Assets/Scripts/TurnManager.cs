@@ -19,13 +19,13 @@ public class TurnManager : MonoBehaviour
 
     public int turnCounter = 0; // Count for the turns+
 
+    public GameObject current = null; // Reference to the current gameobject
+
     public float turnTimerThreshold = 1.0f; // Time taken for the turn timer to fill for a character
 
     public List<GameObject> turnQueue = new List<GameObject>(); // The Turn Order
 
     public int queueSize = 7; // Size of the queue to maintain
-
-    public Image[] turnPortaits; // Reference to the turn potraits
 
     public List<GridElement> enemySpawnPoints = new List<GridElement>(); // Spawn points where enemy can spawn
 
@@ -63,7 +63,11 @@ public class TurnManager : MonoBehaviour
 
     public float titleUITime = 1.5f; // Time for which the title screen is shown
 
+    public float gameStartTime = 0.75f; // Time to spend on starting game message
+
     private CameraFollow cam; // Reference to the camera
+
+    public float enemyTurnWaitTime = 1.5f;
 
     void Start()
     {
@@ -114,30 +118,6 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    // Spawns a new player at given grid
-    public void SpawnNewPlayer(GridElement element)
-    {
-        if (playerSpawnPoints.Contains(element))
-        {
-            foreach (GridElement grid in playerSpawnPoints)
-            {
-                grid.HideHighlight();
-            }
-            ui.HideHint();
-
-            player = Instantiate(playerPrefab,
-                        element.transform.position + Vector3.up * playerPrefab.GetComponent<Pathfinding>().maxYDiff,
-                        Quaternion.identity);
-            playerStats = player.GetComponent<Stats>();
-            playerPath = player.GetComponent<Pathfinding>();
-            playerPath.SetGrid();
-            playerGrid = playerPath.GetGrid();
-
-            StartCoroutine("StartGame");
-            gameStarted = true;
-        }
-    }
-
     // Starts the next turn
     public void NextTurn()
     {
@@ -145,35 +125,11 @@ public class TurnManager : MonoBehaviour
         playerGrid = playerPath.GetGrid();
         enemyGrid.HideHighlight();
         enemyGrid = enemyPath.GetGrid();
-        GameObject current = turnQueue[0];
+        current = turnQueue[0];
         turnQueue.RemoveAt(0);
         current.GetComponent<Stats>().ResetActions();
         actedThisTurn = false;
-        if (current == player)
-        {
-            turn = TurnType.PLAYER;
-            Camera.main.GetComponent<CameraFollow>().SetTarget(player);
-            Camera.main.GetComponent<CameraFollow>().canDrag = true;
-        }
-        else
-        {
-            turn = TurnType.ENEMY;
-            Camera.main.GetComponent<CameraFollow>().SetTarget(enemy);
-            StartCoroutine("StartEnemyTurn", 0.75f);
-        }
-        turnCounter++;
-        ui.SetTurnUI(turn, turnCounter, current.GetComponent<Stats>());
-        for (int i = 0; i < 6; i++)
-        {
-            if (i == 0)
-            {
-                turnPortaits[0].sprite = current.GetComponent<Stats>().character.potrait;
-            }
-            else
-            {
-                turnPortaits[i].sprite = turnQueue[i - 1].GetComponent<Stats>().character.potrait;
-            }
-        }
+        StartCoroutine("StartTurn");
     }
 
     // Checks if the player is moving
@@ -199,25 +155,21 @@ public class TurnManager : MonoBehaviour
             {
                 grid.ActionHighlight();
             }
-            ui.ShowHintTemp("Click on the highlighted grids to move", 1.0f);
+            ui.ShowHintText("Click on the highlighted grids to move", false);
         }
     }
 
     // Moves back to action menu for the character
     public void BackToActionsMenu()
     {
+        ui.HideUI(turn == TurnType.PLAYER);
         ui.SetActionsUI(true);
-        ui.HideHint();
+        ui.SetTurnUI(turn, turnCounter, current, turnQueue);
         if (turn == TurnType.PLAYER)
         {
             playerGrid.HideHighlight();
             playerGrid = playerPath.GetGrid();
             Camera.main.GetComponent<CameraFollow>().canDrag = true;
-            ui.SetTurnUI(turn, turnCounter, playerStats);
-        }
-        else
-        {
-            ui.SetTurnUI(turn, turnCounter, enemyStats);
         }
     }
 
@@ -241,10 +193,9 @@ public class TurnManager : MonoBehaviour
             {
                 grid.HideHighlight();
             }
-            playerGrid.PathHighlight(false);
-            Camera.main.GetComponent<CameraFollow>().SetTarget(player);
-            Camera.main.GetComponent<CameraFollow>().canDrag = false;
-            playerPath.MoveViaPath(path);
+            target.ShowHighlight();
+            turn = TurnType.NONE;
+            StartCoroutine("MoveCharacterAlongPath", path);
         }
         else
         {
@@ -253,7 +204,7 @@ public class TurnManager : MonoBehaviour
     }
 
     // Moves the enemy to a player grid
-    public void MoveEnemy()
+    public Path GetEnemyPath()
     {
         List<Path> completePaths = new List<Path>();
         int minLenC = int.MaxValue;
@@ -317,8 +268,7 @@ public class TurnManager : MonoBehaviour
             path = incompletePaths[0];
         }
         path.FixForGrids(highlightedGrids);
-        enemyGrid.PathHighlight(false);
-        enemyPath.MoveViaPath(path);
+        return path;
     }
 
     // Starts the attack action for the current character
@@ -375,13 +325,19 @@ public class TurnManager : MonoBehaviour
     // Starts the game getting the turn order
     IEnumerator StartGame()
     {
-        ui.ShowHintText("Starting Game...");
+        ui.HideUI(true);
+        cam.canDrag = false;
+        yield return new WaitForSeconds(gameStartTime / 2.0f);
+        ui.ShowHintText("Starting Game...", false);
         gameStarted = true;
-        while (turnQueue.Count < queueSize)
+        float timer = 0.0f;
+        while (turnQueue.Count < queueSize || timer < gameStartTime)
         {
-            yield return new WaitForSeconds(Time.deltaTime * 10.0f);
+            timer += Time.deltaTime;
+            yield return new WaitForSeconds(Time.deltaTime);
         }
         ui.HideHint();
+        yield return new WaitForSeconds(gameStartTime / 2.0f);
         NextTurn();
     }
 
@@ -394,29 +350,117 @@ public class TurnManager : MonoBehaviour
         {
             yield return new WaitForSeconds(Time.deltaTime);
         }
+        cam.canDrag = true;
         if (ui == null)
         {
             ui = GetComponent<UIManager>();
         }
-        ui.ShowHintText("Click on the highlighted grids to spawn the player");
+        ui.ShowHintText("Click on the highlighted grids to spawn the player", false);
         foreach (GridElement element in playerSpawnPoints)
         {
             element.ActionHighlight();
         }
         GetComponent<InputManager>().SetInput(true);
+        playerPrefab.GetComponent<Stats>().SetStats();
+        ui.SetCharacterUI(true, true, playerPrefab.GetComponent<Stats>());
+    }
+
+    // Confirms the player's choice regarding player spawning
+    IEnumerator ConfirmPlayerSpawning(GridElement element)
+    {
+        yield return new WaitForSeconds(Time.deltaTime);
+        if (playerSpawnPoints.Contains(element))
+        {
+            GetComponent<InputManager>().SetInput(false);
+            element.ShowHighlight();
+            ui.ShowHintText("Press Enter/Left-Click to confirm spawning this character at the selected grid. Right Click to go back", false);
+            GameObject tempPlayer = Instantiate(playerPrefab,
+                                    element.transform.position + Vector3.up * playerPrefab.GetComponent<Pathfinding>().maxYDiff,
+                                    Quaternion.identity);
+            while (true)
+            {
+                if (Input.GetMouseButtonUp(0) || Input.GetKeyDown(KeyCode.Return))
+                {
+                    foreach (GridElement grid in playerSpawnPoints)
+                    {
+                        grid.HideHighlight();
+                    }
+                    ui.HideHint();
+
+                    player = tempPlayer;
+                    playerStats = player.GetComponent<Stats>();
+                    playerPath = player.GetComponent<Pathfinding>();
+                    playerPath.SetGrid();
+                    playerGrid = playerPath.GetGrid();
+                    break;
+                }
+                if (Input.GetMouseButtonUp(1))
+                {
+                    GetComponent<InputManager>().SetInput(true);
+                    Destroy(tempPlayer);
+                    element.ActionHighlight();
+                    ui.ShowHintText("Click on the highlighted grids to spawn the player", false);
+                    yield break;
+                }
+                yield return new WaitForSeconds(Time.deltaTime);
+            }
+            StartCoroutine("StartGame");
+        }
+        else
+        {
+            ui.ShowHintTemp("CANNOT SPAWN PLAYER AT THAT GRID!", 0.75f);
+        }
+    }
+
+    // Starts the next turn
+    IEnumerator StartTurn()
+    {
+        cam.SetTarget(current);
+        while (!cam.SnappedToTarget())
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        if (current == player)
+        {
+            turn = TurnType.PLAYER;
+            cam.canDrag = true;
+        }
+        else
+        {
+            turn = TurnType.ENEMY;
+            StartCoroutine("StartEnemyTurn");
+        }
+        turnCounter++;
+        ui.SetTurnUI(turn, turnCounter, current, turnQueue);
+    }
+
+    // Moves the character along the path
+    public IEnumerator MoveCharacterAlongPath(Path path)
+    {
+        ui.HideUI(current.GetComponent<Pathfinding>().isPlayer);
+        cam.canDrag = false;
+        cam.SetTarget(current);
+        while (!cam.SnappedToTarget())
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        turn = (current.GetComponent<Pathfinding>().isPlayer) ? (TurnType.PLAYER) : (TurnType.ENEMY);
+        current.GetComponent<Pathfinding>().GetGrid().PathHighlight(false);
+        current.GetComponent<Pathfinding>().MoveViaPath(path);
     }
 
     // Ends the turn with the player choosing the snap direction
     IEnumerator EndTurn()
     {
         yield return new WaitForSeconds(Time.deltaTime);
+        ui.HideUI(current.GetComponent<Pathfinding>().isPlayer);
         if (turn == TurnType.PLAYER)
         {
             playerGrid.HideHighlight();
             ui.HideTurnUI(true);
             ui.ResetGridElementUI();
             turn = TurnType.NONE;
-            ui.ShowHintText("Use WSAD/Arrow Keys to choose direction to snap to. Press Enter/Left-Click to end turn");
+            ui.ShowHintText("Use WSAD/Arrow Keys to choose direction to snap to. Press Enter/Left-Click to end turn", false);
             ui.SetActionsUI(false);
             while (true)
             {
@@ -453,19 +497,29 @@ public class TurnManager : MonoBehaviour
     }
 
     // Starts the enemy turn showing the grids and initiating action
-    IEnumerator StartEnemyTurn(float timeLimit)
+    IEnumerator StartEnemyTurn()
     {
+        yield return new WaitForSeconds(enemyTurnWaitTime);
         highlightedGrids = enemyPath.GetConnectedGrids();
         foreach (GridElement grid in highlightedGrids)
         {
             grid.ActionHighlight();
         }
-        yield return new WaitForSeconds(timeLimit);
+        yield return new WaitForSeconds(enemyTurnWaitTime / 2.0f);
         foreach (GridElement grid in highlightedGrids)
         {
             grid.HideHighlight();
         }
-        MoveEnemy();
+        Path path = GetEnemyPath();
+        GridElement targetGrid = path.elements[path.length - 1];
+        targetGrid.ShowHighlight();
+        cam.SetTarget(targetGrid.gameObject);
+        ui.HideUI(current.GetComponent<Pathfinding>().isPlayer);
+        while (!cam.SnappedToTarget())
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        StartCoroutine("MoveCharacterAlongPath", path);
     }
 
     void Update()

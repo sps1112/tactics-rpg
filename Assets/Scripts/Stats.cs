@@ -12,6 +12,12 @@ public class Stats : MonoBehaviour
 
     void Awake()
     {
+        SetStats();
+    }
+
+    // Sets the local value of stats from the character template
+    public void SetStats()
+    {
         hp = character.hp;
         actions = character.actions;
     }
