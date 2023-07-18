@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2782311553085589912}
   - component: {fileID: 3662118527048657290}
   m_Layer: 6
-  m_Name: GridTop
+  m_Name: GridTop_Grass
   m_TagString: GridElement
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
