@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ObstacleLayout", menuName = "LevelGrid/ObstacleLayout")]
+[CreateAssetMenu(fileName = "ObstacleLayout", menuName = "Levels/ObstacleLayout")]
 public class ObstacleLayout : ScriptableObject
 {
     public int rows; // Map rows

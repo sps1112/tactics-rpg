@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GridSpawner : MonoBehaviour
 {
-    private GridLayout layout = null; // Reference to the grid layout object
+    private LevelLayout layout = null; // Reference to the grid layout object
 
     public Transform gridOrigin; // Start point for grid generation
 

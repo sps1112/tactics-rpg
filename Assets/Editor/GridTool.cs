@@ -12,7 +12,7 @@ public class GridTool : EditorWindow
 {
     string path = "Assets/Data/Levels/"; // Path to Grid Layout folder
 
-    GridLayout asset = null; // Reference to the asset being changed
+    LevelLayout asset = null; // Reference to the asset being changed
 
     WindowStates state = WindowStates.EMPTY; // Current state of the Grid Editor window
 
@@ -43,8 +43,8 @@ public class GridTool : EditorWindow
             {
                 if (asset == null)
                 {
-                    GridLayout layout = new GridLayout();
-                    string newPath = AssetDatabase.GenerateUniqueAssetPath(path + "NewGridLayout.asset");
+                    LevelLayout layout = new LevelLayout();
+                    string newPath = AssetDatabase.GenerateUniqueAssetPath(path + "NewLevelLayout.asset");
                     AssetDatabase.CreateAsset(layout, newPath);
                     AssetDatabase.SaveAssets();
                     asset = layout;
@@ -52,7 +52,7 @@ public class GridTool : EditorWindow
             }
             else if (state == WindowStates.LOAD)
             {
-                asset = (GridLayout)EditorGUILayout.ObjectField("Grid Layout", asset, typeof(GridLayout), true);
+                asset = (LevelLayout)EditorGUILayout.ObjectField("Grid Layout", asset, typeof(LevelLayout), true);
             }
             if (asset != null)
             {

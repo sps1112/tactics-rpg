@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "GridLayout", menuName = "LevelGrid/GridLayout")]
-public class GridLayout : ScriptableObject
+[CreateAssetMenu(fileName = "LevelLayout", menuName = "Levels/LevelLayout")]
+public class LevelLayout : ScriptableObject
 {
     public string levelName; // Name of this level layout
 

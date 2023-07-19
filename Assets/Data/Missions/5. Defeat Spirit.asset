@@ -17,3 +17,6 @@ MonoBehaviour:
   obstacles: {fileID: 11400000, guid: dbe98548706051d4c9388f36414912b3, type: 2}
   enemies:
   - {fileID: 11400000, guid: f82b76948e89c9240b5c74e402501e1f, type: 2}
+  - {fileID: 11400000, guid: f82b76948e89c9240b5c74e402501e1f, type: 2}
+  - {fileID: 11400000, guid: f82b76948e89c9240b5c74e402501e1f, type: 2}
+  - {fileID: 11400000, guid: f82b76948e89c9240b5c74e402501e1f, type: 2}
