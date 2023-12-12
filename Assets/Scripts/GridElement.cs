@@ -27,7 +27,7 @@ public class GridElement : MonoBehaviour
 
     public GridElement parent = null; // Parent element in case of path
 
-    public int gCost; // Distance from start grid 
+    public int gCost; // Distance from start grid
 
     public int hCost; // Distance to target grid
 
@@ -223,7 +223,6 @@ public class GridHeap
     // Pops the top element from the heap removing it
     public GridElement PopElement()
     {
-
         GridElement element = list[0];
         count--;
         if (count > 0)

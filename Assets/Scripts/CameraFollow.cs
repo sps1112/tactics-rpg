@@ -26,11 +26,11 @@ public class CameraFollow : MonoBehaviour
         canDrag = status;
     }
 
-    // Whether the camera is currently snapped to target
+    // Whether the camera is currently snapped to target or very close to the target
     public bool SnappedToTarget()
     {
         Vector3 pos = target.transform.position + offset;
-        return ((pos - transform.position).magnitude < 0.5f);
+        return (pos - transform.position).magnitude < 0.5f;
     }
 
     // Snaps and moves the camera to the set target
@@ -48,28 +48,28 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
-        if (canDrag)
+        if (canDrag) // Camera is not snapping to target and can be dragged
         {
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(1)) // Drag Start
             {
                 toSnap = false;
                 toDrag = true;
                 origin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             }
-            if (toDrag && !Input.GetMouseButton(1))
+            if (toDrag && !Input.GetMouseButton(1)) // Dragging
             {
                 toDrag = false;
             }
-            if (Input.GetMouseButtonDown(2))
+            if (Input.GetMouseButtonDown(2)) // Set back to snap
             {
                 toSnap = true;
             }
         }
-        if (toSnap && target != null)
+        if (toSnap && target != null) // Follow target
         {
-            transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed);
+            transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed * Time.deltaTime);
         }
-        else if (toDrag)
+        else if (toDrag) // Drag camera's look at origin
         {
             Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.position = Vector3.Lerp(transform.position,

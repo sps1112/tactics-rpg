@@ -353,7 +353,7 @@ public class Pathfinding : MonoBehaviour
                     float currentGridY = GetGrid().transform.position.y;
                     float nextGridY = movePath.elements[pathIndex].transform.position.y;
                     float yDiff = nextGridY - currentGridY;
-                    float jumpHeight = Mathf.Lerp(0.0f, yDiff, jumpSpeed);
+                    float jumpHeight = Mathf.Lerp(0.0f, yDiff, jumpSpeed * Time.deltaTime);
                     float newY = pos.y + jumpHeight;
                     if (heightDiff > 0)
                     {
