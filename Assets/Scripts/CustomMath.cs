@@ -4,24 +4,34 @@ using UnityEngine;
 
 public class CustomMath : MonoBehaviour
 {
-    // Clamps the num between min and max
+    // Clamps an int num between min and max
     public static int Clamp(int num, int min, int max)
     {
         if (max < min)
         {
             max = min;
         }
-        return (num < min) ? (min) : ((num > max) ? (max) : (num));
+        return (num < min) ? min : ((num > max) ? max : num);
     }
 
-    // Projects the target onto the Y plane of origin
+    // Clamps a float num between min and max
+    public static float ClampF(float num, float min, float max)
+    {
+        if (max < min)
+        {
+            max = min;
+        }
+        return (num < min) ? min : ((num > max) ? max : num);
+    }
+
+    // Projects the target onto the XZ plane of given origin
     public static Vector3 GetProjectedTarget(Vector3 origin, Vector3 target)
     {
         target.y = origin.y;
         return target;
     }
 
-    // Returns a direction vector to target
+    // Returns a direction vector towards the target
     public static Vector3 GetDirectionTo(Vector3 origin, Vector3 target, bool ignoreY)
     {
         target = GetProjectedTarget(origin, target);
@@ -29,18 +39,21 @@ public class CustomMath : MonoBehaviour
     }
 
     // Clamps the direction along the 4 cardinal vectors in the XZ plane
-    public static Vector3 ClampAlongCardinals(Vector3 direction)
+    public static Vector3 ClampAlongCardinals(Vector3 dir)
     {
-        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
+        if (!(dir.x == 0 && dir.z == 0)) // Not a ZERO Vector along XZ vector
         {
-            direction.x = direction.x / Mathf.Abs(direction.x);
-            direction.z = 0.0f;
+            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.z))
+            {
+                dir.x = dir.x / Mathf.Abs(dir.x);
+                dir.z = 0.0f;
+            }
+            else
+            {
+                dir.z = dir.z / Mathf.Abs(dir.z);
+                dir.x = 0.0f;
+            }
         }
-        else
-        {
-            direction.z = direction.z / Mathf.Abs(direction.z);
-            direction.x = 0.0f;
-        }
-        return direction;
+        return dir;
     }
 }

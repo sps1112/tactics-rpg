@@ -147,7 +147,7 @@ public class TurnManager : MonoBehaviour
     // Shows the possible move grids for the current character
     public void ShowMoveGrids()
     {
-        ui.SetActionsUI(false);
+        ui.SetActionsUI(false, true);
         if (turn == TurnType.PLAYER)
         {
             highlightedGrids = playerPath.GetConnectedGrids();
@@ -163,13 +163,13 @@ public class TurnManager : MonoBehaviour
     public void BackToActionsMenu()
     {
         ui.HideUI(turn == TurnType.PLAYER);
-        ui.SetActionsUI(true);
+        ui.SetActionsUI(true, false);
         ui.SetTurnUI(turn, turnCounter, current, turnQueue);
         if (turn == TurnType.PLAYER)
         {
             playerGrid.HideHighlight();
             playerGrid = playerPath.GetGrid();
-            Camera.main.GetComponent<CameraFollow>().canDrag = true;
+            cam.SetDrag(true);
         }
     }
 
@@ -271,35 +271,41 @@ public class TurnManager : MonoBehaviour
         return path;
     }
 
-    // Starts the attack action for the current character
-    public void ShowAttackGrids()
+    // Checks if attack action can be done
+    public bool CheckAttackAction()
     {
+        bool status = true;
         if (!actedThisTurn)
         {
-            if (playerGrid.canActOnGrid && playerStats.actions >= 1)
+            if (!playerGrid.canActOnGrid || playerStats.actions < 1)
             {
-                ui.SetActionsUI(false);
-                // IMPLEMENTATION HERE LATER
-                if (playerStats.actions < playerStats.character.actions) // Has moved this turn
-                {
-                    playerStats.UseActions(playerStats.actions); // Use all remaining actions
-                }
-                else // Has not moved this turn
-                {
-                    playerStats.UseActions(1);
-                }
-                actedThisTurn = true;
-                CheckTurnStatus();
-            }
-            else
-            {
-                ui.ShowHintTemp("CANNOT EXECUTE ACTION ON THIS BLOCK!", 0.75f);
+                status = false;
+                ui.ShowHintTemp("CANNOT EXECUTE ACTION THIS TURN!", 0.75f);
             }
         }
         else
         {
-            ui.ShowHintTemp("CANNOT EXECUTE ACTION THIS TURN!", 0.75f);
+            status = false;
+            ui.ShowHintTemp("CANNOT EXECUTE ACTION ON THIS BLOCK!", 0.75f);
         }
+        return status;
+    }
+
+    // Starts the attack action for the current character
+    public void ShowAttackGrids()
+    {
+        ui.SetActionsUI(false, true);
+        // IMPLEMENTATION HERE LATER
+        if (playerStats.actions < playerStats.character.actions) // Has moved this turn
+        {
+            playerStats.UseActions(playerStats.actions); // Use all remaining actions
+        }
+        else // Has not moved this turn
+        {
+            playerStats.UseActions(1);
+        }
+        actedThisTurn = true;
+        CheckTurnStatus();
     }
 
     // Checks if the character has used all their actions
@@ -326,7 +332,7 @@ public class TurnManager : MonoBehaviour
     IEnumerator StartGame()
     {
         ui.HideUI(true);
-        cam.canDrag = false;
+        cam.SetDrag(false);
         yield return new WaitForSeconds(gameStartTime / 2.0f);
         ui.ShowHintText("Starting Game...", false);
         gameStarted = true;
@@ -345,12 +351,7 @@ public class TurnManager : MonoBehaviour
     public IEnumerator StartPlayerSpawning()
     {
         cam = Camera.main.GetComponent<CameraFollow>();
-        cam.SetTarget(playerSpawnPoints[0].gameObject);
-        while (!cam.SnappedToTarget())
-        {
-            yield return new WaitForSeconds(Time.deltaTime);
-        }
-        cam.canDrag = true;
+        yield return cam.StartCoroutine("SnapToTarget", playerSpawnPoints[0].gameObject);
         if (ui == null)
         {
             ui = GetComponent<UIManager>();
@@ -415,19 +416,15 @@ public class TurnManager : MonoBehaviour
     // Starts the next turn
     IEnumerator StartTurn()
     {
-        cam.SetTarget(current);
-        while (!cam.SnappedToTarget())
-        {
-            yield return new WaitForSeconds(Time.deltaTime);
-        }
+        yield return cam.StartCoroutine("SnapToTarget", current);
         if (current == player)
         {
             turn = TurnType.PLAYER;
-            cam.canDrag = true;
         }
         else
         {
             turn = TurnType.ENEMY;
+            cam.SetDrag(false);
             StartCoroutine("StartEnemyTurn");
         }
         turnCounter++;
@@ -438,13 +435,9 @@ public class TurnManager : MonoBehaviour
     public IEnumerator MoveCharacterAlongPath(Path path)
     {
         ui.HideUI(current.GetComponent<Pathfinding>().isPlayer);
-        cam.canDrag = false;
-        cam.SetTarget(current);
-        while (!cam.SnappedToTarget())
-        {
-            yield return new WaitForSeconds(Time.deltaTime);
-        }
-        turn = (current.GetComponent<Pathfinding>().isPlayer) ? (TurnType.PLAYER) : (TurnType.ENEMY);
+        yield return cam.StartCoroutine("SnapToTarget", current);
+        cam.SetDrag(false);
+        turn = current.GetComponent<Pathfinding>().isPlayer ? TurnType.PLAYER : TurnType.ENEMY;
         current.GetComponent<Pathfinding>().GetGrid().PathHighlight(false);
         current.GetComponent<Pathfinding>().MoveViaPath(path);
     }
@@ -461,7 +454,7 @@ public class TurnManager : MonoBehaviour
             ui.ResetGridElementUI();
             turn = TurnType.NONE;
             ui.ShowHintText("Use WSAD/Arrow Keys to choose direction to snap to. Press Enter/Left-Click to end turn", false);
-            ui.SetActionsUI(false);
+            ui.SetActionsUI(false, false);
             while (true)
             {
                 if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
@@ -513,12 +506,8 @@ public class TurnManager : MonoBehaviour
         Path path = GetEnemyPath();
         GridElement targetGrid = path.elements[path.length - 1];
         targetGrid.ShowHighlight();
-        cam.SetTarget(targetGrid.gameObject);
         ui.HideUI(current.GetComponent<Pathfinding>().isPlayer);
-        while (!cam.SnappedToTarget())
-        {
-            yield return new WaitForSeconds(Time.deltaTime);
-        }
+        yield return cam.StartCoroutine("SnapToTarget", targetGrid.gameObject);
         StartCoroutine("MoveCharacterAlongPath", path);
     }
 

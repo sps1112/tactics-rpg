@@ -14,7 +14,7 @@ public class CharacterUI : MonoBehaviour
 
     public TextMeshProUGUI actionText; // Reference to the Actions UI
 
-    // Sets the Character Details
+    // Sets the Character Details on the respective UI elements
     public void SetCharacter(Stats stats)
     {
         nameText.text = stats.character.characterName;

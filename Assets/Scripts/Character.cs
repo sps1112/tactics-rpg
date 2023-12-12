@@ -15,5 +15,5 @@ public class Character : ScriptableObject
 
     public int hp; // Max HP for the character
 
-    public int actions; // Max actions for the character
+    public int actions; // How many actions the character can perform each turn
 }

@@ -357,11 +357,11 @@ public class Pathfinding : MonoBehaviour
                     float newY = pos.y + jumpHeight;
                     if (heightDiff > 0)
                     {
-                        newY = Mathf.Clamp(newY, currentGridY + maxYDiff, nextGridY + maxYDiff);
+                        newY = CustomMath.ClampF(newY, currentGridY + maxYDiff, nextGridY + maxYDiff);
                     }
                     else
                     {
-                        newY = Mathf.Clamp(newY, nextGridY + maxYDiff, currentGridY + maxYDiff);
+                        newY = CustomMath.ClampF(newY, nextGridY + maxYDiff, currentGridY + maxYDiff);
                     }
                     pos.y = newY;
                 }

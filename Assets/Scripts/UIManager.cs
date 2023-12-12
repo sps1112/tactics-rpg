@@ -78,10 +78,10 @@ public class UIManager : MonoBehaviour
     }
 
     // Sets the state of Actions UI
-    public void SetActionsUI(bool status)
+    public void SetActionsUI(bool status, bool inputStatus)
     {
         actionsUI.SetActive(status);
-        GetComponent<InputManager>().SetInput(!status);
+        GetComponent<InputManager>().SetInput(inputStatus);
     }
 
     // Sets the character UI for the character with status
@@ -115,12 +115,12 @@ public class UIManager : MonoBehaviour
             SetCharacterUI(false, false, null);
             turnText.text = "Player Turn";
             SetCharacterUI(true, true, current.GetComponent<Stats>());
-            SetActionsUI(true);
+            SetActionsUI(true, false);
         }
         else
         {
             SetCharacterUI(true, false, null);
-            SetActionsUI(false);
+            SetActionsUI(false, false);
             turnText.text = "Enemy Turn";
             SetCharacterUI(false, true, current.GetComponent<Stats>());
         }

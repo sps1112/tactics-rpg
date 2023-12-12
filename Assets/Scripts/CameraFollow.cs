@@ -6,7 +6,7 @@ public class CameraFollow : MonoBehaviour
 {
     private GameObject target = null; // Current Target for the camera
 
-    public bool canDrag = false; // Whether the target is currently moving (cannot drag while moving)
+    private bool canDrag = false; // Whether the target is currently moving (cannot drag while moving)
 
     public Vector3 offset; // Offset to keep when snapped to target
 
@@ -20,18 +20,10 @@ public class CameraFollow : MonoBehaviour
 
     private Vector3 origin; // Origin wrt dragging
 
-    // Sets the target for the camera to snap to
-    public void SetTarget(GameObject target_)
+    // Sets the drag status on whether the camera can be dragged
+    public void SetDrag(bool status)
     {
-        if (target_ != null)
-        {
-            toSnap = true;
-            target = target_;
-        }
-        else
-        {
-            Debug.Log("Target is null");
-        }
+        canDrag = status;
     }
 
     // Whether the camera is currently snapped to target
@@ -39,6 +31,19 @@ public class CameraFollow : MonoBehaviour
     {
         Vector3 pos = target.transform.position + offset;
         return ((pos - transform.position).magnitude < 0.5f);
+    }
+
+    // Snaps and moves the camera to the set target
+    public IEnumerator SnapToTarget(GameObject target_)
+    {
+        toSnap = true;
+        target = target_;
+        SetDrag(false);
+        while (!SnappedToTarget())
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        SetDrag(true);
     }
 
     void LateUpdate()
@@ -51,26 +56,25 @@ public class CameraFollow : MonoBehaviour
                 toDrag = true;
                 origin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             }
-            if (!Input.GetMouseButton(1) && toDrag)
+            if (toDrag && !Input.GetMouseButton(1))
             {
                 toDrag = false;
             }
-        }
-        else if (!toSnap)
-        {
-            toSnap = true;
-        }
-        if (toSnap)
-        {
-            if (target != null)
+            if (Input.GetMouseButtonDown(2))
             {
-                transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed);
+                toSnap = true;
             }
+        }
+        if (toSnap && target != null)
+        {
+            transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed);
         }
         else if (toDrag)
         {
             Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            transform.position = Vector3.Lerp(transform.position, transform.position + 60.0f * ((origin - pos) * (Time.deltaTime)), cameraSpeed * dragFactor);
+            transform.position = Vector3.Lerp(transform.position,
+                                            transform.position + 60.0f * ((origin - pos) * (Time.deltaTime)),
+                                            cameraSpeed * dragFactor);
             origin = pos;
         }
     }
