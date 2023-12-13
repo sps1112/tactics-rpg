@@ -60,7 +60,7 @@ public class ActionsManager : MonoBehaviour
     }
 
     // Snaps the camera back to the player and performs the action
-    IEnumerator StartAction(int actionID)
+    private IEnumerator StartAction(int actionID)
     {
         ui.SetActionsUI(false, false);
         yield return cam.StartCoroutine("SnapToTarget", turn.current);

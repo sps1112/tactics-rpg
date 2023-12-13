@@ -23,15 +23,15 @@ public class GridElement : MonoBehaviour
 
     public GridState state; // State of Grid Element
 
-    public List<GridElement> neighbours; // List of neightbour grids
+    public List<GridElement> neighbours; // List of neightbour grid elements
 
-    public GridElement parent = null; // Parent element in case of path
+    public GridElement parent = null; // Parent element in case of path traversal
 
-    public int gCost; // Distance from start grid
+    public int gCost; // Distance from start grid in path calculations
 
-    public int hCost; // Distance to target grid
+    public int hCost; // Distance to target grid in path calculations
 
-    public int index = 0; // Index in the Heap
+    public int index = 0; // Index in the Heap in path calculations
 
     private Material highlight = null; // Reference to the grid highlight material
 
@@ -56,7 +56,7 @@ public class GridElement : MonoBehaviour
         highlight = transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
     }
 
-    // Sets the state of the Grid Element
+    // Sets the initial state of the Grid Element
     public void SetInitialState(int row_, int column_, Vector2 pos_, int height_)
     {
         row = row_;
@@ -66,20 +66,20 @@ public class GridElement : MonoBehaviour
         height = height_;
     }
 
-    // Sets the Grid state to some input state
+    // Changes the grid's state to a given state
     public void SetState(GridState state_)
     {
         state = state_;
     }
 
-    // Checks if the Grid can be traversed in respect to the checking agent
+    // Checks if the grid can be traversed in respect to the checking agent
     public bool IsTraversable(bool isPlayer)
     {
         if (isPlayer)
         {
-            return (state != GridState.BLOCKED && state != GridState.ENEMY);
+            return (state != GridState.BLOCKED) && (state != GridState.ENEMY);
         }
-        return (state != GridState.BLOCKED && state != GridState.PLAYER);
+        return (state != GridState.BLOCKED) && (state != GridState.PLAYER);
     }
 
     // Gets the distance to the target grid from this grid
@@ -87,23 +87,23 @@ public class GridElement : MonoBehaviour
     {
         int delX = Mathf.RoundToInt(Mathf.Abs(pos.x - target.pos.x));
         int delZ = Mathf.RoundToInt(Mathf.Abs(pos.y - target.pos.y));
-        return ((14 * Mathf.Min(delX, delZ)) + (10 * (Mathf.Max(delX, delZ) - Mathf.Min(delX, delZ))));
+        return (14 * Mathf.Min(delX, delZ)) + (10 * CustomMath.Difference(delX, delZ)); // Manhattan Distancing
     }
 
-    // Sets the GCost and HCost for this grid
+    // Sets the GCost and HCost for this grid in the current path calculations
     public void SetCosts(GridElement start, GridElement target)
     {
         gCost = GetDistance(start);
         hCost = GetDistance(target);
     }
 
-    // Returns the FCost as the sum of GCost and HCost
+    // Returns the FCost which is the sum of GCost and HCost
     public int GetFCost()
     {
         return gCost + hCost;
     }
 
-    // Compares two grid elements to give more preferable grid
+    // Compares two grid elements to give more preferable grid for path traversal
     public int CompareGridElement(GridElement element)
     {
         int delF = element.GetFCost() - GetFCost();
@@ -113,7 +113,7 @@ public class GridElement : MonoBehaviour
     // Highlights the current grid
     public void ShowHighlight()
     {
-        highlight.color = (IsTraversable(true)) ? (normalHColor) : (blockedHColor);
+        highlight.color = IsTraversable(true) ? normalHColor : blockedHColor;
     }
 
     // Removes highlight from the grid
@@ -126,7 +126,7 @@ public class GridElement : MonoBehaviour
     // Highlights grid along a path
     public void PathHighlight(bool isTarget)
     {
-        highlight.color = (isTarget) ? (targetHColor) : (pathHColor);
+        highlight.color = isTarget ? targetHColor : pathHColor;
     }
 
     // Highlights the grid to show it can be used for actions
@@ -149,11 +149,12 @@ public class GridElement : MonoBehaviour
     }
 }
 
+// Heap Data structure to store grid elements in sorted form for pathfinding
 public class GridHeap
 {
     public List<GridElement> list = new List<GridElement>(); // List of all the grid elements in the heap
 
-    int maxCount = 0; // The Maximum count of elements which were part of this heap
+    private int maxCount = 0; // The Maximum count of elements which were part of this heap
 
     public int count = 0; // Current count of elements in the heap
 
@@ -174,7 +175,7 @@ public class GridHeap
     }
 
     // Sorts the Heap upwards from the given element
-    public void SortUp(GridElement element)
+    private void SortUp(GridElement element)
     {
         int pIndex = (element.index - 1) / 2;
         if (pIndex < 0)
@@ -210,7 +211,7 @@ public class GridHeap
     }
 
     // Swaps two elements in the heap
-    public void SwapElements(GridElement a, GridElement b)
+    private void SwapElements(GridElement a, GridElement b)
     {
         list[a.index] = b;
         list[b.index] = a;
@@ -241,7 +242,7 @@ public class GridHeap
     }
 
     // Sorts the Heap downwards from the given element
-    void SortDown(GridElement element)
+    private void SortDown(GridElement element)
     {
         int iterations = 0;
         while (true)

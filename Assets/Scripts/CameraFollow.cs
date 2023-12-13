@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
+using UnityEngine.Device;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -20,6 +22,10 @@ public class CameraFollow : MonoBehaviour
 
     private Vector3 origin; // Origin wrt dragging
 
+    [SerializeField]
+    [Range(0, 1)]
+    private float camMoveSmoothness = 0.2f;
+
     // Sets the drag status on whether the camera can be dragged
     public void SetDrag(bool status)
     {
@@ -34,7 +40,7 @@ public class CameraFollow : MonoBehaviour
     }
 
     // Snaps and moves the camera to the set target
-    public IEnumerator SnapToTarget(GameObject target_)
+    private IEnumerator SnapToTarget(GameObject target_)
     {
         toSnap = true;
         target = target_;
@@ -46,7 +52,7 @@ public class CameraFollow : MonoBehaviour
         SetDrag(true);
     }
 
-    void LateUpdate()
+    void Update()
     {
         if (canDrag) // Camera is not snapping to target and can be dragged
         {
@@ -54,7 +60,7 @@ public class CameraFollow : MonoBehaviour
             {
                 toSnap = false;
                 toDrag = true;
-                origin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                origin = Input.mousePosition;
             }
             if (toDrag && !Input.GetMouseButton(1)) // Dragging
             {
@@ -65,16 +71,26 @@ public class CameraFollow : MonoBehaviour
                 toSnap = true;
             }
         }
+    }
+
+    void LateUpdate()
+    {
         if (toSnap && target != null) // Follow target
         {
-            transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed * Time.deltaTime);
+            Vector3 simplePos = CustomMath.MoveTowardsTarget(transform.position, target.transform.position + offset, cameraSpeed * Time.deltaTime);
+            Vector3 smoothPos = Vector3.Lerp(transform.position, target.transform.position + offset, cameraSpeed * Time.deltaTime / 3.0f);
+            transform.position = Vector3.Lerp(simplePos, smoothPos, camMoveSmoothness);
         }
         else if (toDrag) // Drag camera's look at origin
         {
-            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 pos = Input.mousePosition;
+            Vector3 diff = origin - pos;
+            diff.x /= UnityEngine.Screen.currentResolution.width;
+            diff.y /= UnityEngine.Screen.currentResolution.height;
+            diff *= dragFactor;
             transform.position = Vector3.Lerp(transform.position,
-                                            transform.position + 60.0f * ((origin - pos) * (Time.deltaTime)),
-                                            cameraSpeed * dragFactor);
+                                            CustomMath.MoveAlongPlane(transform, diff),
+                                            cameraSpeed * Time.deltaTime * 60.0f);
             origin = pos;
         }
     }

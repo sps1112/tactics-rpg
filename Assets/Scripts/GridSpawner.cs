@@ -85,7 +85,7 @@ public class GridSpawner : MonoBehaviour
     }
 
     // Sets the neighbour grids for all the grid elements
-    void SetupNeighbours()
+    private void SetupNeighbours()
     {
         for (int i = 0; i < layout.rows; i++)
         {
@@ -105,12 +105,12 @@ public class GridSpawner : MonoBehaviour
                             {
                                 int X = CustomMath.Clamp(xPos + x, 0, layout.columns - 1);
                                 int Z = CustomMath.Clamp(zPos + z, 0, layout.rows - 1);
-                                if (layout.layout[Z * layout.columns + X] > 0)
+                                if (layout.layout[Z * layout.columns + X] > 0) // Grid is there at the given position and not an empty space
                                 {
                                     GridElement neighbour = GetElement(X, Z);
                                     if (!element.neighbours.Contains(neighbour) && neighbour != element && neighbour.IsTraversable(true))
                                     {
-                                        if (!diagonalMotion && (x != 0 && z != 0))
+                                        if (!diagonalMotion && x != 0 && z != 0)
                                         {
                                             continue;
                                         }
@@ -142,6 +142,7 @@ public class GridSpawner : MonoBehaviour
                 }
             }
             gridElements.Clear();
+
             foreach (GameObject gridParent in gridParents)
             {
                 if (Application.isEditor)
@@ -154,6 +155,7 @@ public class GridSpawner : MonoBehaviour
                 }
             }
             gridParents.Clear();
+
             gridActive = false;
         }
     }

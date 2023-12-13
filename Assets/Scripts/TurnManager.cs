@@ -275,18 +275,25 @@ public class TurnManager : MonoBehaviour
     public bool CheckAttackAction()
     {
         bool status = true;
-        if (!actedThisTurn)
+        if (!actedThisTurn) // Not performed an action this turn
         {
             if (!playerGrid.canActOnGrid || playerStats.actions < 1)
             {
                 status = false;
-                ui.ShowHintTemp("CANNOT EXECUTE ACTION THIS TURN!", 0.75f);
+                if (!playerGrid.canActOnGrid) // Currently on a no-action grid
+                {
+                    ui.ShowHintTemp("CANNOT EXECUTE ACTION ON THIS BLOCK!", 0.75f);
+                }
+                else // Depleted action points (by some condition)
+                {
+                    ui.ShowHintTemp("CANNOT EXECUTE ACTION THIS TURN!", 0.75f);
+                }
             }
         }
-        else
+        else // Already performed an action this turn
         {
             status = false;
-            ui.ShowHintTemp("CANNOT EXECUTE ACTION ON THIS BLOCK!", 0.75f);
+            ui.ShowHintTemp("CANNOT EXECUTE ACTION THIS TURN!", 0.75f);
         }
         return status;
     }

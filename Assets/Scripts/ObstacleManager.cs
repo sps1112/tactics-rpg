@@ -27,7 +27,7 @@ public class ObstacleManager : MonoBehaviour
     }
 
     // Gets the reference datas
-    void GetData()
+    private void GetData()
     {
         layout = GetComponent<GameManager>().mission.obstacles;
         grid = GetComponent<GridSpawner>();

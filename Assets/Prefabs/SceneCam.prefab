@@ -132,5 +132,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   offset: {x: 8, y: 6, z: -6}
-  cameraSpeed: 4
-  dragFactor: 200
+  cameraSpeed: 12
+  dragFactor: 6
+  camMoveSmoothness: 0.75
