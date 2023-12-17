@@ -24,13 +24,13 @@ public class InputManager : MonoBehaviour
         if (currentGrid != null)
         {
             ui.ResetGridElementUI();
-            if (currentGrid.isActionGrid)
+            if (currentGrid.isActionGrid) // If Action grid, highlight that color
             {
                 currentGrid.ActionHighlight();
             }
             else
             {
-                if (path != null && path.elements.Contains(currentGrid))
+                if (path != null && path.elements.Contains(currentGrid)) // If Part of path grids, then show that color 
                 {
                     return;
                 }

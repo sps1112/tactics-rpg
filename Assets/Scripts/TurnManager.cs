@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Defines the types of turn availables
+// Defines the types of turns available
 public enum TurnType
 {
     NONE, // No Turn
@@ -11,13 +11,30 @@ public enum TurnType
     ENEMY, // Enemy's Turn
 }
 
+// The various phases which make up a turn
+public enum TurnPhase
+{
+    CHECK, // Checking whether action left to go to menu
+    MENU, // Choosing action in Action Menu
+    SNAPPING, // Snapping to character
+    MOVE, // Chossing grid to move to
+    MOVING, // Moving to chosen grid
+    ATTACK, // Choosing grid to attack
+    ATTACKING, // Attacking chosen grid
+    ENDING, // Ending this turn
+}
+
 public class TurnManager : MonoBehaviour
 {
     private UIManager ui = null; // UI Manager reference
 
+    private LevelManager levelManager; // Level Manager reference
+
     public TurnType turn = TurnType.NONE; // Current Turn Type
 
-    public int turnCounter = 0; // Count for the turns+
+    public TurnPhase phase = TurnPhase.MENU; // Current turn's phase
+
+    public int turnCounter = 0; // Count for the turns
 
     public GameObject current = null; // Reference to the current gameobject
 
@@ -26,10 +43,6 @@ public class TurnManager : MonoBehaviour
     public List<GameObject> turnQueue = new List<GameObject>(); // The Turn Order
 
     public int queueSize = 7; // Size of the queue to maintain
-
-    public List<GridElement> enemySpawnPoints = new List<GridElement>(); // Spawn points where enemy can spawn
-
-    public List<GridElement> playerSpawnPoints = new List<GridElement>(); // Spawn points where player can spawn
 
     public GameObject enemyPrefab; // Reference to the enemy prefab for generating enemies
 
@@ -72,26 +85,8 @@ public class TurnManager : MonoBehaviour
     void Start()
     {
         ui = GetComponent<UIManager>();
+        levelManager = GetComponent<LevelManager>();
         SetupLevel();
-    }
-
-    // Adds spawn point for enemy and players to spawn to
-    public void AddSpawnPoint(GridElement element, bool isEnemy)
-    {
-        if (isEnemy)
-        {
-            if (!enemySpawnPoints.Contains(element))
-            {
-                enemySpawnPoints.Add(element);
-            }
-        }
-        else
-        {
-            if (!playerSpawnPoints.Contains(element))
-            {
-                playerSpawnPoints.Add(element);
-            }
-        }
     }
 
     // Sets up the level for gameplay
@@ -106,8 +101,8 @@ public class TurnManager : MonoBehaviour
     {
         if (enemy == null)
         {
-            int index = Random.Range(0, enemySpawnPoints.Count);
-            GridElement spawnGrid = enemySpawnPoints[index];
+            int index = Random.Range(0, levelManager.enemySpawnPoints.Count);
+            GridElement spawnGrid = levelManager.enemySpawnPoints[index];
             enemy = Instantiate(enemyPrefab,
                                     spawnGrid.transform.position + Vector3.up * enemyPrefab.GetComponent<Pathfinding>().maxYDiff,
                                     Quaternion.identity);
@@ -358,13 +353,13 @@ public class TurnManager : MonoBehaviour
     public IEnumerator StartPlayerSpawning()
     {
         cam = Camera.main.GetComponent<CameraFollow>();
-        yield return cam.StartCoroutine("SnapToTarget", playerSpawnPoints[0].gameObject);
+        yield return cam.StartCoroutine("SnapToTarget", levelManager.playerSpawnPoints[0].gameObject);
         if (ui == null)
         {
             ui = GetComponent<UIManager>();
         }
         ui.ShowHintText("Click on the highlighted grids to spawn the player", false);
-        foreach (GridElement element in playerSpawnPoints)
+        foreach (GridElement element in levelManager.playerSpawnPoints)
         {
             element.ActionHighlight();
         }
@@ -377,7 +372,7 @@ public class TurnManager : MonoBehaviour
     IEnumerator ConfirmPlayerSpawning(GridElement element)
     {
         yield return new WaitForSeconds(Time.deltaTime);
-        if (playerSpawnPoints.Contains(element))
+        if (levelManager.playerSpawnPoints.Contains(element))
         {
             GetComponent<InputManager>().SetInput(false);
             element.ShowHighlight();
@@ -389,7 +384,7 @@ public class TurnManager : MonoBehaviour
             {
                 if (Input.GetMouseButtonUp(0) || Input.GetKeyDown(KeyCode.Return))
                 {
-                    foreach (GridElement grid in playerSpawnPoints)
+                    foreach (GridElement grid in levelManager.playerSpawnPoints)
                     {
                         grid.HideHighlight();
                     }

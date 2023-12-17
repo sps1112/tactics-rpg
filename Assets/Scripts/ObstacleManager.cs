@@ -18,7 +18,7 @@ public class ObstacleManager : MonoBehaviour
     [SerializeField]
     private GameObject obstacleParent = null; // Obstacles Parent reference
 
-    private TurnManager turn = null; // Reference to the Turn Manager
+    private LevelManager levelManager = null; // Reference to the Turn Manager
 
     void Start()
     {
@@ -26,12 +26,12 @@ public class ObstacleManager : MonoBehaviour
         GenerateObstacles();
     }
 
-    // Gets the reference datas
+    // Gets the reference data
     private void GetData()
     {
         layout = GetComponent<GameManager>().mission.obstacles;
         grid = GetComponent<GridSpawner>();
-        turn = GetComponent<TurnManager>();
+        levelManager = GetComponent<LevelManager>();
     }
 
     // Generates the obstacles
@@ -43,7 +43,7 @@ public class ObstacleManager : MonoBehaviour
             if (obstacles.Count <= 0)
             {
                 // For Obstacle generation via Editor
-                if (layout == null || grid == null || turn == null)
+                if (layout == null || grid == null || levelManager == null)
                 {
                     GetData();
                 }
@@ -90,11 +90,11 @@ public class ObstacleManager : MonoBehaviour
                                     break;
                                 case 3:
                                     // Enemy Spawn Point
-                                    turn.AddSpawnPoint(currentGrid, true);
+                                    levelManager.AddSpawnPoint(currentGrid, true);
                                     break;
                                 case 4:
                                     // Player Spawn Point
-                                    turn.AddSpawnPoint(currentGrid, false);
+                                    levelManager.AddSpawnPoint(currentGrid, false);
                                     break;
                                 default:
                                     break;

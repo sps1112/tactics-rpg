@@ -32,7 +32,7 @@ public class Path
     // Checks if the path is a complete path to the given target grid
     public bool IsCompletePath(GridElement target)
     {
-        return (elements[length - 1] == target);
+        return elements[length - 1] == target;
     }
 
     // Highlights this path
@@ -42,7 +42,7 @@ public class Path
         {
             if (toHighlight)
             {
-                elements[i].PathHighlight((i) == (length - 1));
+                elements[i].PathHighlight(i == (length - 1));
             }
             else
             {
@@ -88,7 +88,7 @@ public class Pathfinding : MonoBehaviour
 
     private GridSpawner spawner = null; // Reference to the Grid Spawner
 
-    private TurnManager turn = null; // Reference to the Turn Manager
+    private TurnManager turnManager = null; // Reference to the Turn Manager
 
     public bool isPlayer = true; // Whether agent is Player or Enemy
 
@@ -114,9 +114,15 @@ public class Pathfinding : MonoBehaviour
 
     void Start()
     {
+        GetData();
+    }
+
+    // Gets the reference data
+    private void GetData()
+    {
         stats = GetComponent<Stats>();
         spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
-        turn = GameObject.Find("GameManager").GetComponent<TurnManager>();
+        turnManager = GameObject.Find("GameManager").GetComponent<TurnManager>();
     }
 
     // Returns the grid which the agent is currently upon
@@ -124,9 +130,7 @@ public class Pathfinding : MonoBehaviour
     {
         if (spawner == null)
         {
-            stats = GetComponent<Stats>();
-            spawner = GameObject.Find("GameManager").GetComponent<GridSpawner>();
-            turn = GameObject.Find("GameManager").GetComponent<TurnManager>();
+            GetData();
         }
         return spawner.GetElement(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
     }
@@ -336,7 +340,7 @@ public class Pathfinding : MonoBehaviour
                     movePath.HighlightPath(false);
                     SetGrid();
                     stats.UseActions(movePath.length);
-                    turn.CheckTurnStatus();
+                    turnManager.CheckTurnStatus();
                     return;
                 }
                 else

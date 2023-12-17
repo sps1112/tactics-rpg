@@ -208,7 +208,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Turns off the hint after a time
-    IEnumerator ShowHint(float timeLimit)
+    private IEnumerator ShowHint(float timeLimit)
     {
         yield return new WaitForSeconds(timeLimit);
         HideHint();

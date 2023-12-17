@@ -40,7 +40,7 @@ public class CameraFollow : MonoBehaviour
     }
 
     // Snaps and moves the camera to the set target
-    private IEnumerator SnapToTarget(GameObject target_)
+    public IEnumerator SnapToTarget(GameObject target_)
     {
         toSnap = true;
         target = target_;

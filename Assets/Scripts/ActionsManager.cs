@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ActionsManager : MonoBehaviour
 {
-    private TurnManager turn; // Turn Manager Reference
+    private TurnManager turnManager; // Turn Manager Reference
 
     private UIManager ui; // UI Manager Reference
 
@@ -12,7 +12,7 @@ public class ActionsManager : MonoBehaviour
 
     void Start()
     {
-        turn = GetComponent<TurnManager>();
+        turnManager = GetComponent<TurnManager>();
         ui = GetComponent<UIManager>();
         cam = Camera.main.GetComponent<CameraFollow>();
     }
@@ -33,7 +33,7 @@ public class ActionsManager : MonoBehaviour
         switch (actionID)
         {
             case 2:
-                status = turn.CheckAttackAction();
+                status = turnManager.CheckAttackAction();
                 break;
             default:
                 break;
@@ -44,26 +44,26 @@ public class ActionsManager : MonoBehaviour
     // Makes the player move to any valid grid
     public void Move()
     {
-        turn.ShowMoveGrids();
+        turnManager.ShowMoveGrids();
     }
 
     // Makes player attack a character on any valid grid
     public void Attack()
     {
-        turn.ShowAttackGrids();
+        turnManager.ShowAttackGrids();
     }
 
     // Makes the player wait for this turn
     public void Wait()
     {
-        turn.StartCoroutine("EndTurn");
+        turnManager.StartCoroutine("EndTurn");
     }
 
     // Snaps the camera back to the player and performs the action
     private IEnumerator StartAction(int actionID)
     {
         ui.SetActionsUI(false, false);
-        yield return cam.StartCoroutine("SnapToTarget", turn.current);
+        yield return cam.StartCoroutine("SnapToTarget", turnManager.current);
         switch (actionID)
         {
             case 1:
