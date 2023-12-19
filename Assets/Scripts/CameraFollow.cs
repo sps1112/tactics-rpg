@@ -1,14 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
-using UnityEngine.Device;
 
 public class CameraFollow : MonoBehaviour
 {
-    private GameObject target = null; // Current Target for the camera
+    private TurnManager turnManager = null; // Turn Manager reference
 
-    private bool canDrag = false; // Whether the target is currently moving (cannot drag while moving)
+    [SerializeField]
+    private GameObject target = null; // Current Target for the camera
 
     public Vector3 offset; // Offset to keep when snapped to target
 
@@ -24,16 +23,17 @@ public class CameraFollow : MonoBehaviour
 
     [SerializeField]
     [Range(0, 1)]
-    private float camMoveSmoothness = 0.2f;
+    private float camMoveSmoothness = 0.2f; // The tendency of camera to work as a smooth camera
 
-    // Sets the drag status on whether the camera can be dragged
-    public void SetDrag(bool status)
+    public Vector2 camZoomLimits; // The min and max size of the camera
+
+    void Start()
     {
-        canDrag = status;
+        turnManager = GameObject.Find("GameManager").GetComponent<TurnManager>();
     }
 
     // Whether the camera is currently snapped to target or very close to the target
-    public bool SnappedToTarget()
+    private bool SnappedToTarget()
     {
         Vector3 pos = target.transform.position + offset;
         return (pos - transform.position).magnitude < 0.5f;
@@ -42,35 +42,38 @@ public class CameraFollow : MonoBehaviour
     // Snaps and moves the camera to the set target
     public IEnumerator SnapToTarget(GameObject target_)
     {
+        if (turnManager == null)
+        {
+            turnManager = GameObject.Find("GameManager").GetComponent<TurnManager>();
+        }
+        turnManager.SetPhase(TurnPhase.SNAPPING);
         toSnap = true;
         target = target_;
-        SetDrag(false);
         while (!SnappedToTarget())
         {
             yield return new WaitForSeconds(Time.deltaTime);
         }
-        SetDrag(true);
+        turnManager.RestorePhase();
     }
 
-    void Update()
+    // Starts the dragging process
+    public void StartDrag()
     {
-        if (canDrag) // Camera is not snapping to target and can be dragged
-        {
-            if (Input.GetMouseButtonDown(1)) // Drag Start
-            {
-                toSnap = false;
-                toDrag = true;
-                origin = Input.mousePosition;
-            }
-            if (toDrag && !Input.GetMouseButton(1)) // Dragging
-            {
-                toDrag = false;
-            }
-            if (Input.GetMouseButtonDown(2)) // Set back to snap
-            {
-                toSnap = true;
-            }
-        }
+        toSnap = false;
+        toDrag = true;
+        origin = Input.mousePosition;
+    }
+
+    // Stops the camera dragging
+    public void StopDrag()
+    {
+        toDrag = false;
+    }
+
+    // Sets the camera to snap mode
+    public void Snap()
+    {
+        toSnap = true;
     }
 
     void LateUpdate()
@@ -85,8 +88,8 @@ public class CameraFollow : MonoBehaviour
         {
             Vector3 pos = Input.mousePosition;
             Vector3 diff = origin - pos;
-            diff.x /= UnityEngine.Screen.currentResolution.width;
-            diff.y /= UnityEngine.Screen.currentResolution.height;
+            diff.x /= Screen.currentResolution.width;
+            diff.y /= Screen.currentResolution.height;
             diff *= dragFactor;
             transform.position = Vector3.Lerp(transform.position,
                                             CustomMath.MoveAlongPlane(transform, diff),

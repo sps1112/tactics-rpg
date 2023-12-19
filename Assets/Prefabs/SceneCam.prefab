@@ -131,7 +131,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305189115d7144443982651d053c8f65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: {x: 8, y: 6, z: -6}
+  target: {fileID: 0}
+  offset: {x: 7, y: 6, z: -6.5}
   cameraSpeed: 12
   dragFactor: 6
   camMoveSmoothness: 0.75
+  camZoomLimits: {x: 2, y: 5}

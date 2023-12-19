@@ -8,11 +8,11 @@ public class ObstacleManager : MonoBehaviour
 
     public float obstacleHeightOffset = 0.475f; // Offset for spawning the obstacles
 
-    public List<GameObject> obstacles; // List of obstacles spawned
+    [SerializeField]
+    private List<GameObject> obstacles; // List of obstacles spawned
 
     private bool obstaclesActive = false; // Have the obstacles been generated
 
-    [SerializeField]
     private GridSpawner grid = null; // Reference to the grid
 
     [SerializeField]

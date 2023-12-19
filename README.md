@@ -8,13 +8,14 @@ Current Features of the project:
 - **A\* Pathfinding** which acts as the pathfinding algorithm for traversal of the characters on the 3D Grid
 - **Character Scriptable Object** script to define various template characters with their own stats. These can be used in our levels as enemies or used as teammates in the player's party.
 - A rudimentary implementation of the **Enemy AI** which follows the player character on the 3D Grid.
-- **Smooth camera** transitions for the changing phases during the player's and enemy's turn.
+- **Smooth camera** transitions for the changing phases during the player's and enemy's turn. The camera can be dragged to view the grid, focused on target and zoomed in and out.
 
 Features to be added:
 
-- [ ] The flow of turn events goes through the defined turn phases
-- [ ] Update Inputmanager script to be based on the turn phases
-- [ ] Delink dragging click and go back click button for move and attack phase
+- [X] The flow of turn events goes through the defined turn phases
+- [X] Delink dragging click and go back click button for move and attack phase
+- [X] Add Zoom in and out button
+- [ ] Update InputManager script to be based on the turn phases
 - [ ] Moving to the same position should consume 0 steps/actions for the player and enemy
 - [ ] UI window shows the phase of the current turn
 - [ ] Update the transitions through states, through turns and tweak time of each phase

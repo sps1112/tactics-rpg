@@ -8,6 +8,8 @@ public class InputManager : MonoBehaviour
 
     private TurnManager turnManager; // Turn Manager reference
 
+    private CameraFollow cam; // Camera Follow reference
+
     private GridElement currentGrid = null; // Reference to the last grid 
 
     public bool canInput = false; // Whether the player can input
@@ -16,6 +18,7 @@ public class InputManager : MonoBehaviour
     {
         ui = GetComponent<UIManager>();
         turnManager = GetComponent<TurnManager>();
+        cam = Camera.main.GetComponent<CameraFollow>();
     }
 
     // Hides the current grid highlight
@@ -48,6 +51,31 @@ public class InputManager : MonoBehaviour
     {
         HideCurrentHighlight(null);
         canInput = status;
+    }
+
+    // Checks the input status
+    public bool GetInputStatus()
+    {
+        bool status = false;
+        switch (turnManager.turn)
+        {
+            case TurnType.NONE: // Player spawning
+                if (turnManager.phase == TurnPhase.SPAWN)
+                {
+                    status = true;
+                }
+                break;
+            case TurnType.PLAYER: // Player's turn
+                if (turnManager.phase == TurnPhase.MENU || turnManager.phase == TurnPhase.MOVE || turnManager.phase == TurnPhase.ATTACK)
+                {
+                    status = true;
+                }
+                break;
+            default:
+                break;
+        }
+        // canInput = status;
+        return status;
     }
 
     void FixedUpdate()
@@ -114,6 +142,35 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Q)) // Zoom In
+        {
+            Camera.main.GetComponent<Camera>().orthographicSize -= 0.25f;
+            Camera.main.GetComponent<Camera>().orthographicSize = CustomMath.ClampF(
+                Camera.main.GetComponent<Camera>().orthographicSize,
+                cam.camZoomLimits.x, cam.camZoomLimits.y);
+        }
+        if (Input.GetKeyDown(KeyCode.E)) // Zoom Out
+        {
+            Camera.main.GetComponent<Camera>().orthographicSize += 0.25f;
+            Camera.main.GetComponent<Camera>().orthographicSize = CustomMath.ClampF(
+               Camera.main.GetComponent<Camera>().orthographicSize,
+               cam.camZoomLimits.x, cam.camZoomLimits.y);
+        }
+        if (GetInputStatus())
+        {
+            if (Input.GetMouseButtonDown(1)) // Drag Start
+            {
+                cam.StartDrag();
+            }
+            if (!Input.GetMouseButton(1)) // Release Dragging
+            {
+                cam.StopDrag();
+            }
+            if (Input.GetKeyDown(KeyCode.F)) // Set back to snap
+            {
+                cam.Snap();
+            }
+        }
         if (turnManager.gameStarted)
         {
             // Player's Turn
@@ -133,7 +190,7 @@ public class InputManager : MonoBehaviour
                             }
                         }
                     }
-                    if (Input.GetMouseButtonDown(1))
+                    if (Input.GetKeyDown(KeyCode.Space))
                     {
                         HideCurrentHighlight(null);
                         turnManager.HideMoveGrids();

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Class to store the path grids ans length
 public class Path
 {
     public List<GridElement> elements = new List<GridElement>(); // List of grid elements in the path
@@ -32,10 +33,10 @@ public class Path
     // Checks if the path is a complete path to the given target grid
     public bool IsCompletePath(GridElement target)
     {
-        return elements[length - 1] == target;
+        return elements.Contains(target) && elements[length - 1] == target;
     }
 
-    // Highlights this path
+    // Shows and hides the highlight on this path
     public void HighlightPath(bool toHighlight)
     {
         for (int i = 0; i < length; i++)

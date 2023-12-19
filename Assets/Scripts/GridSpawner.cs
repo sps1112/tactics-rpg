@@ -12,9 +12,11 @@ public class GridSpawner : MonoBehaviour
 
     public bool diagonalMotion = true; // Flag for whether diagonal motion will be allowed on the grid
 
-    public List<GameObject> gridParents; // List of all Grid Parent objects
+    [SerializeField]
+    private List<GameObject> gridParents; // List of all Grid Parent objects
 
-    public List<GameObject> gridElements; // List of all the grid elements
+    [SerializeField]
+    private List<GameObject> gridElements; // List of all the grid elements
 
     private bool gridActive = false; // Has the grid been generated
 
