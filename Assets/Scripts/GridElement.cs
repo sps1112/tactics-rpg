@@ -21,7 +21,8 @@ public class GridElement : MonoBehaviour
 
     public int height; // Height of the Grid Element
 
-    public GridState state; // State of Grid Element
+    [SerializeField]
+    private GridState state; // State of Grid Element
 
     public List<GridElement> neighbours; // List of neightbour grid elements
 
@@ -35,17 +36,23 @@ public class GridElement : MonoBehaviour
 
     private Material highlight = null; // Reference to the grid highlight material
 
-    public Color normalHColor; // Highlight color for normal grids
+    [SerializeField]
+    private Color normalHColor; // Highlight color for normal grids
 
-    public Color blockedHColor; // Highlight color for blocked grids
+    [SerializeField]
+    private Color blockedHColor; // Highlight color for blocked grids
 
-    public Color hiddenHColor; // Highlight color when not hovering
+    [SerializeField]
+    private Color hiddenHColor; // Highlight color when not hovering
 
-    public Color pathHColor; // Highlight color for grids on a path
+    [SerializeField]
+    private Color pathHColor; // Highlight color for grids on a path
 
-    public Color targetHColor; // Highlight color for target grid in a path
+    [SerializeField]
+    private Color targetHColor; // Highlight color for target grid in a path
 
-    public Color actionHColor; // Highlight color for grids on which actions can be performed
+    [SerializeField]
+    private Color actionHColor; // Highlight color for grids on which actions can be performed
 
     public bool isActionGrid = false; // Whether the grid is an action grid
 

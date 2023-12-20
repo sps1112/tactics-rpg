@@ -6,14 +6,11 @@ public class ActionsManager : MonoBehaviour
 {
     private TurnManager turnManager; // Turn Manager Reference
 
-    private UIManager ui; // UI Manager Reference
-
     private CameraFollow cam; // Reference to the camera
 
     void Start()
     {
         turnManager = GetComponent<TurnManager>();
-        ui = GetComponent<UIManager>();
         cam = Camera.main.GetComponent<CameraFollow>();
     }
 
@@ -62,9 +59,9 @@ public class ActionsManager : MonoBehaviour
     // Snaps the camera back to the player and performs the action
     private IEnumerator StartAction(int actionID)
     {
-        ui.SetActionsUI(false); // Hides the action UI
-        GetComponent<InputManager>().SetInput(false);
+        // Wait till the camera snaps to current character
         yield return cam.StartCoroutine("SnapToTarget", turnManager.current);
+        // Then, perform the respective action
         switch (actionID)
         {
             case 1:

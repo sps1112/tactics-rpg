@@ -6,7 +6,8 @@ public class ObstacleManager : MonoBehaviour
 {
     private ObstacleLayout layout = null; // Layout Object Reference
 
-    public float obstacleHeightOffset = 0.475f; // Offset for spawning the obstacles
+    [SerializeField]
+    private float obstacleHeightOffset = 0.475f; // Offset for spawning the obstacles
 
     [SerializeField]
     private List<GameObject> obstacles; // List of obstacles spawned

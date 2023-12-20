@@ -10,7 +10,8 @@ public class GridSpawner : MonoBehaviour
 
     public float[] heightOffsets; // Offsets for the different types of gridblocks
 
-    public bool diagonalMotion = true; // Flag for whether diagonal motion will be allowed on the grid
+    [SerializeField]
+    private bool diagonalMotion = true; // Flag for whether diagonal motion will be allowed on the grid
 
     [SerializeField]
     private List<GameObject> gridParents; // List of all Grid Parent objects

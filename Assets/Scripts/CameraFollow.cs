@@ -6,14 +6,16 @@ public class CameraFollow : MonoBehaviour
 {
     private TurnManager turnManager = null; // Turn Manager reference
 
-    [SerializeField]
     private GameObject target = null; // Current Target for the camera
 
-    public Vector3 offset; // Offset to keep when snapped to target
+    [SerializeField]
+    private Vector3 offset; // Offset to keep when snapped to target
 
-    public float cameraSpeed = 0.025f; // Move speed while snapped
+    [SerializeField]
+    private float cameraSpeed = 0.025f; // Move speed while snapped
 
-    public float dragFactor = 5.0f; // Speed factor for dragging camera
+    [SerializeField]
+    private float dragFactor = 5.0f; // Speed factor for dragging camera
 
     private bool toSnap = true; // Whether to snap to target
 
@@ -42,18 +44,13 @@ public class CameraFollow : MonoBehaviour
     // Snaps and moves the camera to the set target
     public IEnumerator SnapToTarget(GameObject target_)
     {
-        if (turnManager == null)
-        {
-            turnManager = GameObject.Find("GameManager").GetComponent<TurnManager>();
-        }
         turnManager.SetPhase(TurnPhase.SNAPPING);
         toSnap = true;
         target = target_;
-        while (!SnappedToTarget())
+        while (!SnappedToTarget()) // Wait till the cam is snapped to target
         {
             yield return new WaitForSeconds(Time.deltaTime);
         }
-        turnManager.RestorePhase();
     }
 
     // Starts the dragging process

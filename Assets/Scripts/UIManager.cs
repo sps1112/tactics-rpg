@@ -147,24 +147,18 @@ public class UIManager : MonoBehaviour
         hintText.text = text;
     }
 
-    // Sets the character UI for the character with status
-    public void SetCharacterUI(bool isPlayer, bool status, Stats stats)
+    // Shows the character UI for the character with its stats
+    public void ShowCharacterUI(bool isPlayer, Stats stats)
     {
         if (isPlayer)
         {
-            playerUI.gameObject.SetActive(status);
-            if (status)
-            {
-                playerUI.SetCharacter(stats);
-            }
+            playerUI.gameObject.SetActive(true);
+            playerUI.SetCharacter(stats);
         }
         else
         {
-            enemyUI.gameObject.SetActive(status);
-            if (status)
-            {
-                enemyUI.SetCharacter(stats);
-            }
+            enemyUI.gameObject.SetActive(true);
+            enemyUI.SetCharacter(stats);
         }
     }
 
@@ -175,7 +169,6 @@ public class UIManager : MonoBehaviour
         {
             playerUI.gameObject.SetActive(false);
             SetActionsUI(false);
-            GetComponent<InputManager>().SetInput(false);
         }
         else
         {
@@ -196,19 +189,15 @@ public class UIManager : MonoBehaviour
         turnCountText.text = "TURN: " + turnCounter.ToString();
         if (type == TurnType.PLAYER) // Player's turn
         {
-            SetCharacterUI(false, false, null); // Enemy and Off
             turnText.text = "Player Turn";
-            SetCharacterUI(true, true, current.GetComponent<Stats>()); // Player and On
-            SetActionsUI(true);
-            GetComponent<InputManager>().SetInput(false);
+            HideCharacterUI(false); // Hide enemy
+            ShowCharacterUI(true, current.GetComponent<Stats>()); // Show player
         }
         else // Enemy's turn
         {
-            SetCharacterUI(true, false, null); // Player and Off
             turnText.text = "Enemy Turn";
-            SetCharacterUI(false, true, current.GetComponent<Stats>()); // Enemy and On
-            SetActionsUI(false);
-            GetComponent<InputManager>().SetInput(false);
+            HideCharacterUI(true); // Hide player
+            ShowCharacterUI(false, current.GetComponent<Stats>()); // Show Enemy
         }
         for (int i = 0; i < turnPortraits.Count; i++) // Show all the characters for the current and later turns
         {
@@ -259,6 +248,7 @@ public class UIManager : MonoBehaviour
         {
             yield return new WaitForSeconds(Time.deltaTime);
         }
+        // Hide title and start spawning
         titleUI.SetActive(false);
         GetComponent<TurnManager>().StartCoroutine("StartPlayerSpawning");
     }

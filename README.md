@@ -15,7 +15,11 @@ Features to be added:
 - [X] The flow of turn events goes through the defined turn phases
 - [X] Delink dragging click and go back click button for move and attack phase
 - [X] Add Zoom in and out button
-- [ ] Update InputManager script to be based on the turn phases
+- [X] Update InputManager script to be based on the turn phases
+- [X] Each phase function should do its own set of tasks
+  - [X] Setting UI windows on or off should be done in phase change function
+  - [X] Setting input mode on or off should be done in phase change function
+- [ ] Scan mode on with input
 - [ ] Moving to the same position should consume 0 steps/actions for the player and enemy
 - [ ] UI window shows the phase of the current turn
 - [ ] Update the transitions through states, through turns and tweak time of each phase
