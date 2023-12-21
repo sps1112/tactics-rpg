@@ -208,6 +208,8 @@ public class GridHeap
                 return;
             }
             pIndex = CustomMath.Clamp(pIndex, 0, maxCount - 1);
+
+            // Check for infinite loop
             iterations++;
             if (iterations > 250)
             {
@@ -280,6 +282,8 @@ public class GridHeap
             {
                 return;
             }
+
+            // Check for infinite loop
             iterations++;
             if (iterations > 250)
             {

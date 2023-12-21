@@ -78,7 +78,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Hides the hint UI
-    public void HideHint(bool forceStop)
+    public void HideHint(bool forceStop = false)
     {
         if (forceStop) // Force stop all the ui elements
         {
@@ -222,7 +222,7 @@ public class UIManager : MonoBehaviour
     private IEnumerator HideHintDelay(float timeLimit)
     {
         yield return new WaitForSeconds(timeLimit);
-        HideHint(false);
+        HideHint();
     }
 
     // Shows the Title UI and later starts the game
@@ -243,8 +243,8 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(timeLimit);
         // Play out the End animation
         anim.Play("UI Fade Out");
-        yield return new WaitForSeconds(Time.deltaTime);
-        while (Standard.IsAnimationPlaying(anim, "UI Fade Out"))
+        yield return new WaitForSeconds(Time.deltaTime); // Wait for it to start
+        while (Standard.IsAnimationPlaying(anim, "UI Fade Out")) // Wait as animation plays out
         {
             yield return new WaitForSeconds(Time.deltaTime);
         }

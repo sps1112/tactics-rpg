@@ -44,7 +44,7 @@ public class CameraFollow : MonoBehaviour
     // Snaps and moves the camera to the set target
     public IEnumerator SnapToTarget(GameObject target_)
     {
-        turnManager.SetPhase(TurnPhase.SNAPPING);
+        turnManager.StartSnapPhase();
         toSnap = true;
         target = target_;
         while (!SnappedToTarget()) // Wait till the cam is snapped to target

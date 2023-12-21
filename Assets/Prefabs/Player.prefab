@@ -79,14 +79,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPlayer: 1
-  moving: 0
+  moveSpeed: 5
   minDistance: 0.05
   jumpSpeed: 20
   maxYDiff: 0.575
   minDistJump: 0.8
-  moveSpeed: 4
   rotateSpeed: 30
-  currentGrid: {fileID: 0}
+  minAngle: 0.5
 --- !u!114 &6256787392553068144
 MonoBehaviour:
   m_ObjectHideFlags: 0

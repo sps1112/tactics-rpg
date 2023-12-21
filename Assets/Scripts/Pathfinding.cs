@@ -9,7 +9,7 @@ public class Path
 
     public int length; // Number of elements in the path
 
-    // Adds an element to the Path
+    // Adds an element to the start of the Path
     public void AddGrid(GridElement element)
     {
         elements.Insert(0, element);
@@ -17,7 +17,7 @@ public class Path
     }
 
     // Gets the distance which will need to be traversered to clear this path
-    public int GetPathDistance()
+    public int GetPathDistance() // Relevant with diagonal motion enabled
     {
         int distance = 0;
         GridElement element1 = elements[0];
@@ -56,6 +56,7 @@ public class Path
     public void FixForGrids(List<GridElement> grids)
     {
         List<GridElement> newElements = new List<GridElement>();
+        // Go through each element in the path as long as it is present in the list of grids
         for (int i = 0; i < length; i++)
         {
             if (grids.Contains(elements[i]))
@@ -71,7 +72,7 @@ public class Path
         elements = newElements;
     }
 
-    // Prints the path
+    // Prints the path elements from start to finish
     public void PrintPath()
     {
         Debug.Log("Printing Path...");
@@ -85,33 +86,42 @@ public class Path
 
 public class Pathfinding : MonoBehaviour
 {
-    private Stats stats; // Reference to the character stats
+    private Stats stats; // Reference to the character's stats
 
     private GridSpawner spawner = null; // Reference to the Grid Spawner
 
     private TurnManager turnManager = null; // Reference to the Turn Manager
 
-    public bool isPlayer = true; // Whether agent is Player or Enemy
+    [SerializeField]
+    private bool isPlayer = true; // Whether agent is Player or Enemy
 
-    public bool moving = false; // Whether the agent is moving
+    private bool toMove = false; // Whether the agent is moving
 
-    public Path movePath = null; // Path being used for moving
+    private Path movePath = null; // Path being used for moving
 
-    int pathIndex = 0; // Index of which element in the current path to move to
+    private int pathIndex = 0; // Index of which element in the current path to move to
 
-    public float minDistance = 0.05f; // Minimum Distance before stopping 
+    [SerializeField]
+    private float moveSpeed = 7.5f; // Movement Speed while moving
 
-    public float jumpSpeed = 0.025f; // Speed used for jumping 
+    [SerializeField]
+    private float minDistance = 0.05f; // Minimum Distance before stopping motion
+
+    [SerializeField]
+    private float jumpSpeed = 0.025f; // Speed used for jumping 
 
     public float maxYDiff = 0.65f; // Maximum difference to maintain with grid block while jumping
 
-    public float minDistJump = 0.35f; // Minimum distance from a block before starting jumping
+    [SerializeField]
+    private float minDistJump = 0.35f; // Minimum distance from a block before starting jumping
 
-    public float moveSpeed = 7.5f; // Movement Speed while moving
+    [SerializeField]
+    private float rotateSpeed = 0.1f; // Rotate speed factor while rotating
 
-    public float rotateSpeed = 0.1f; // Rotate speed factor while turning
+    [SerializeField]
+    private float minAngle = 0.5f; // Minimum angle difference before stopping rotation
 
-    public GridElement currentGrid = null; // Grid before moving
+    private GridElement currentGrid = null; // Grid before moving
 
     void Start()
     {
@@ -133,47 +143,51 @@ public class Pathfinding : MonoBehaviour
         {
             GetData();
         }
+        // Return the grid at the current position
         return spawner.GetElement(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
     }
 
     // Sets the grid states and refreshes current grid
     public void SetGrid()
     {
-        if (currentGrid != null)
+        if (currentGrid != null) // If already a grid, reset it to empty
         {
             currentGrid.SetState(GridState.EMPTY);
         }
         currentGrid = GetGrid();
-        currentGrid.SetState((isPlayer) ? (GridState.PLAYER) : (GridState.ENEMY));
+        currentGrid.SetState(isPlayer ? GridState.PLAYER : GridState.ENEMY);
     }
 
-    // Gets all the connected grids for this character
+    // Gets all the connected grids for this character to the given steps
     public List<GridElement> GetConnectedGrids()
     {
-        List<GridElement> grids = new List<GridElement>();
-        GridElement origin = GetGrid();
-        grids.Add(origin);
-        List<GridElement> lastGrids = new List<GridElement>();
-        lastGrids.Add(origin);
-        int steps = stats.actions;
+        GridElement start = GetGrid();
+
+        List<GridElement> grids = new List<GridElement>(); // List of connected grids
+        grids.Add(start);
+
+        List<GridElement> prevGrids = new List<GridElement>(); // List of grids added in previous step
+        prevGrids.Add(start);
+
+        int steps = stats.actions; // Number of steps to check for a grid
         for (int i = 0; i < steps; i++)
         {
             List<GridElement> newGrids = new List<GridElement>();
-            foreach (GridElement grid in lastGrids)
+            foreach (GridElement grid in prevGrids) // Check for each grid we added last time
             {
-                foreach (GridElement neighbour in grid.neighbours)
+                foreach (GridElement neighbour in grid.neighbours) // Check for each of its neighbour
                 {
-                    if (neighbour.IsTraversable(isPlayer) && !grids.Contains(neighbour))
+                    if (neighbour.IsTraversable(isPlayer) && !grids.Contains(neighbour)) // Check for any neighbour we already haven't added
                     {
-                        if (Mathf.Abs(grid.height - neighbour.height) <= stats.character.jump)
+                        if (Mathf.Abs(grid.height - neighbour.height) <= stats.character.jump) // If we can reach there, add it
                         {
-                            newGrids.Add(neighbour);
+                            newGrids.Add(neighbour); // List all the grids we are adding this step
                             grids.Add(neighbour);
                         }
                     }
                 }
             }
-            lastGrids = newGrids;
+            prevGrids = newGrids; // These will be checked in the next step
         }
         return grids;
     }
@@ -184,11 +198,14 @@ public class Pathfinding : MonoBehaviour
         // Create lists to hold grid elements
         GridHeap openList = new GridHeap();
         GridHeap closedList = new GridHeap();
+
+        // Store a list all the grids we have checked for as their gCost and hCost have to be reset
         List<GridElement> allGrids = new List<GridElement>();
 
-        GridElement start = GetGrid();
+        GridElement start = GetGrid(); // Current grid
 
-        GridElement closestGrid = start;
+        // Stores the closest grid we have gotten to the target in Pathfinding
+        GridElement closestGrid = start;  // This will be used as the new target, if no path is available to the target
         int closestDist = int.MaxValue;
 
         openList.AddToHeap(start);
@@ -265,13 +282,15 @@ public class Pathfinding : MonoBehaviour
                     }
                 }
             }
+
             // Check if no path exists
             if (openList.count == 0)
             {
-                target = closestGrid;
+                target = closestGrid; // We use the closest grid as the new target
                 break;
             }
 
+            // Check for infinite loop
             iterations++;
             if (iterations > 250)
             {
@@ -280,7 +299,7 @@ public class Pathfinding : MonoBehaviour
             }
         }
 
-        // Go over the path elements
+        // Now backtrack from the target to reach the start grid to get the path
         Path path = new Path();
         path.AddGrid(target);
         GridElement element = target.parent;
@@ -290,7 +309,7 @@ public class Pathfinding : MonoBehaviour
             element = element.parent;
         }
 
-        // Reset all the grids checked for Pathfinding
+        // Reset all these grids so that they can be used fresh for the next check
         for (int i = 0; i < allGrids.Count; i++)
         {
             allGrids[i].gCost = 0;
@@ -298,6 +317,7 @@ public class Pathfinding : MonoBehaviour
             allGrids[i].index = 0;
             allGrids[i].parent = null;
         }
+
         return path;
     }
 
@@ -305,9 +325,9 @@ public class Pathfinding : MonoBehaviour
     public void MoveViaPath(Path path)
     {
         movePath = path;
-        moving = true;
-        path.HighlightPath(true);
-        GameObject.Find("GameManager").GetComponent<InputManager>().HideHighlight(path);
+        toMove = true;
+        GetGrid().PathHighlight(false); // Highlight start grid
+        path.HighlightPath(true); // Highlight path
         pathIndex = 0;
         StartCoroutine("RotateToTarget", movePath.elements[pathIndex].transform.position);
     }
@@ -316,7 +336,7 @@ public class Pathfinding : MonoBehaviour
     public IEnumerator RotateToTarget(Vector3 target)
     {
         Vector3 finalDir = CustomMath.GetDirectionTo(GetGrid().transform.position, target, true);
-        while (Mathf.Abs(Vector3.Angle(transform.forward, finalDir)) >= 0.5f)
+        while (Mathf.Abs(Vector3.Angle(transform.forward, finalDir)) >= minAngle) //
         {
             transform.forward = Vector3.RotateTowards(transform.forward, finalDir, rotateSpeed * Time.deltaTime, 0.0f);
             yield return new WaitForSeconds(Time.deltaTime);
@@ -326,51 +346,55 @@ public class Pathfinding : MonoBehaviour
 
     void Update()
     {
-        if (moving)
+        if (toMove)
         {
-            Vector2 displacement = movePath.elements[pathIndex].pos - new Vector2(transform.position.x, transform.position.z);
-            Vector2 direction = displacement.normalized;
-            float distance = displacement.magnitude;
-            if (distance < minDistance)
+            Vector2 dis = movePath.elements[pathIndex].pos - new Vector2(transform.position.x, transform.position.z);
+            Vector2 dir = dis.normalized;
+            float dist = dis.magnitude;
+            if (dist < minDistance) // Reached next grid
             {
-                pathIndex++;
+                pathIndex++; // Move on to next one
                 StopCoroutine("RotateToTarget");
-                if (pathIndex >= movePath.length)
+                if (pathIndex >= movePath.length) // Path finished as reached target
                 {
-                    moving = false;
-                    movePath.HighlightPath(false);
+                    toMove = false;
                     SetGrid();
-                    stats.UseActions(movePath.length);
-                    turnManager.CheckTurnStatus();
+                    movePath.HighlightPath(false);
+                    stats.UseActions(movePath.length); // Use actions for the number of steps moved
+                    turnManager.StartCheckPhase();
                     return;
                 }
-                else
+                else // Else, we now have to move to next grid in path, thus start rotating to face it
                 {
                     StartCoroutine("RotateToTarget", movePath.elements[pathIndex].transform.position);
                 }
             }
-            else
+            else // Still moving to next grid, so we move up or down to reach grid's height level
             {
                 Vector3 pos = transform.position;
+                // Move pos along Y axis
                 float heightDiff = movePath.elements[pathIndex].height - GetGrid().height;
-                if (heightDiff != 0 && distance < minDistJump)
+                // Only start moving up or down if close enough to the next grid
+                if (heightDiff != 0 && dist < minDistJump)
                 {
-                    float currentGridY = GetGrid().transform.position.y;
-                    float nextGridY = movePath.elements[pathIndex].transform.position.y;
-                    float yDiff = nextGridY - currentGridY;
+                    float currentY = GetGrid().transform.position.y;
+                    float nextY = movePath.elements[pathIndex].transform.position.y;
+                    float yDiff = nextY - currentY;
                     float jumpHeight = Mathf.Lerp(0.0f, yDiff, jumpSpeed * Time.deltaTime);
                     float newY = pos.y + jumpHeight;
+                    // Clamp the final height between the limits based on the current and next grid's height
                     if (heightDiff > 0)
                     {
-                        newY = CustomMath.ClampF(newY, currentGridY + maxYDiff, nextGridY + maxYDiff);
+                        newY = CustomMath.ClampF(newY, currentY + maxYDiff, nextY + maxYDiff);
                     }
                     else
                     {
-                        newY = CustomMath.ClampF(newY, nextGridY + maxYDiff, currentGridY + maxYDiff);
+                        newY = CustomMath.ClampF(newY, nextY + maxYDiff, currentY + maxYDiff);
                     }
                     pos.y = newY;
                 }
-                pos += new Vector3(direction.x, 0.0f, direction.y) * moveSpeed * Time.deltaTime;
+                // Move pos along X and Z axes
+                pos += new Vector3(dir.x, 0.0f, dir.y) * moveSpeed * Time.deltaTime;
                 transform.position = pos;
             }
         }

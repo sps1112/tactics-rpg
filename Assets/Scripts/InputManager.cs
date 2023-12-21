@@ -8,7 +8,9 @@ public class InputManager : MonoBehaviour
 
     private TurnManager turnManager; // Turn Manager reference
 
-    private CameraFollow cam; // Camera Follow reference
+    private Camera cam; // Camera component reference
+
+    private CameraFollow camFollow; // Camera Follow reference
 
     private GridElement currentGrid = null; // Reference to the last grid 
 
@@ -20,13 +22,14 @@ public class InputManager : MonoBehaviour
     {
         ui = GetComponent<UIManager>();
         turnManager = GetComponent<TurnManager>();
-        cam = Camera.main.GetComponent<CameraFollow>();
+        cam = Camera.main.GetComponent<Camera>();
+        camFollow = Camera.main.GetComponent<CameraFollow>();
     }
 
     // Sets the Input state
     public void SetInput(bool status, bool scanStatus)
     {
-        HideHighlight(null); // Reset current highlight
+        HideHighlight(); // Reset current highlight
         canInput = status;
         canScan = scanStatus;
     }
@@ -38,7 +41,7 @@ public class InputManager : MonoBehaviour
         {
             if (element != currentGrid) // If the new grid, is different, then hide the previous one
             {
-                HideHighlight(null);
+                HideHighlight();
             }
         }
         ui.SetGridElementUI(element);
@@ -47,7 +50,7 @@ public class InputManager : MonoBehaviour
     }
 
     // Hides the current grid highlight
-    public void HideHighlight(Path path)
+    public void HideHighlight()
     {
         if (currentGrid != null) // Already highlighting something
         {
@@ -58,16 +61,9 @@ public class InputManager : MonoBehaviour
             {
                 currentGrid.ActionHighlight();
             }
-            else
+            else // Else, hide the highlight
             {
-                if (path != null && path.elements.Contains(currentGrid)) // If Part of path grids, then show that color 
-                {
-                    return;
-                }
-                else // if not, hide the highlight
-                {
-                    currentGrid.HideHighlight();
-                }
+                currentGrid.HideHighlight();
             }
             currentGrid = null;
         }
@@ -75,7 +71,7 @@ public class InputManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (canScan) // Can scan grids
+        if (canScan || (turnManager.turn == TurnType.PLAYER && turnManager.phase == TurnPhase.MENU && Input.GetKey(KeyCode.LeftShift))) // Can scan grids
         {
             Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement"))) // Cursor on grid
@@ -84,12 +80,12 @@ public class InputManager : MonoBehaviour
             }
             else // Not on any grid
             {
-                HideHighlight(null);
+                HideHighlight();
             }
         }
         else
         {
-            HideHighlight(null); // Hide any grid if it currently being hightlighted
+            HideHighlight(); // Hide any grid if it currently being hightlighted
         }
     }
 
@@ -97,31 +93,31 @@ public class InputManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q)) // Zoom In
         {
-            Camera.main.GetComponent<Camera>().orthographicSize -= 0.33f;
-            Camera.main.GetComponent<Camera>().orthographicSize = CustomMath.ClampF(
-                Camera.main.GetComponent<Camera>().orthographicSize,
-                cam.camZoomLimits.x, cam.camZoomLimits.y);
+            cam.orthographicSize -= 0.33f;
+            cam.orthographicSize = CustomMath.ClampF(
+                cam.orthographicSize,
+                camFollow.camZoomLimits.x, camFollow.camZoomLimits.y);
         }
         if (Input.GetKeyDown(KeyCode.E)) // Zoom Out
         {
-            Camera.main.GetComponent<Camera>().orthographicSize += 0.33f;
-            Camera.main.GetComponent<Camera>().orthographicSize = CustomMath.ClampF(
-               Camera.main.GetComponent<Camera>().orthographicSize,
-               cam.camZoomLimits.x, cam.camZoomLimits.y);
+            cam.orthographicSize += 0.33f;
+            cam.orthographicSize = CustomMath.ClampF(
+                cam.orthographicSize,
+                camFollow.camZoomLimits.x, camFollow.camZoomLimits.y);
         }
         if (canInput) // Can Input
         {
             if (Input.GetMouseButtonDown(1)) // Drag Start
             {
-                cam.StartDrag();
+                camFollow.StartDrag();
             }
             if (!Input.GetMouseButton(1)) // Release Dragging
             {
-                cam.StopDrag();
+                camFollow.StopDrag();
             }
             if (Input.GetKeyDown(KeyCode.F)) // Set back to snap
             {
-                cam.Snap();
+                camFollow.Snap();
             }
             if (canScan) // Can click on a grid
             {
@@ -130,8 +126,7 @@ public class InputManager : MonoBehaviour
                     Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
                     if (Physics.Raycast(r, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("GridElement")))
                     {
-                        GridElement element = hit.collider.gameObject.GetComponent<GridElement>();
-                        turnManager.ProcessGridClick(element);
+                        turnManager.ProcessGridClick(hit.collider.gameObject.GetComponent<GridElement>());
                     }
                 }
                 if (Input.GetKeyDown(KeyCode.Space)) // Undo process

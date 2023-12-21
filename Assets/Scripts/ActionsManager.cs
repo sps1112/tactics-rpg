@@ -41,13 +41,13 @@ public class ActionsManager : MonoBehaviour
     // Makes the player move to any valid grid
     public void Move()
     {
-        turnManager.ShowMoveGrids();
+        turnManager.StartMovePhase();
     }
 
     // Makes player attack a character on any valid grid
     public void Attack()
     {
-        turnManager.ShowAttackGrids();
+        turnManager.StartAttackPhase();
     }
 
     // Makes the player wait for this turn
