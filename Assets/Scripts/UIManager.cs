@@ -44,6 +44,8 @@ public class UIManager : MonoBehaviour
 
     public List<Image> turnPortraits; // Reference to the Turn portraits
 
+    public GameObject pauseMenu; // Pause UI Reference
+
     void Awake()
     {
         HideUI();
@@ -57,6 +59,20 @@ public class UIManager : MonoBehaviour
         HideCharacterUI(true); // Hide player ui
         HideCharacterUI(false); // Hide enemy ui
         HideTurnUI();
+    }
+
+    // Toggle the pause menu gameobject on or off
+    public void TogglePause()
+    {
+        if (pauseMenu.activeSelf)
+        {
+            Time.timeScale = 1.0f;
+        }
+        else
+        {
+            Time.timeScale = 0.0f;
+        }
+        pauseMenu.SetActive(!pauseMenu.activeSelf);
     }
 
     // Resets the Grid UI

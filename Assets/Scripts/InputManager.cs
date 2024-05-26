@@ -91,6 +91,10 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)) // Toggle pause menu on or off
+        {
+            ui.TogglePause();
+        }
         if (Input.GetKeyDown(KeyCode.Q)) // Zoom In
         {
             cam.orthographicSize -= 0.33f;
